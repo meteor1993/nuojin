@@ -14,9 +14,11 @@ import javax.persistence.*;
 @Table(name = "product")
 public class ProductModel {
     private String id;
-    private String name;
+    private String productName;
     private String productDesc;
     private String imageURL;
+    // 原价格
+    private Integer originalPrice;
     // 现金价格
     private Integer cashPrice;
 
@@ -32,12 +34,12 @@ public class ProductModel {
         this.id = id;
     }
 
-    public String getName() {
-        return name;
+    public String getProductName() {
+        return productName;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setProductName(String productName) {
+        this.productName = productName;
     }
 
     public String getProductDesc() {
@@ -54,6 +56,14 @@ public class ProductModel {
 
     public void setImageURL(String imageURL) {
         this.imageURL = imageURL;
+    }
+
+    public Integer getOriginalPrice() {
+        return originalPrice;
+    }
+
+    public void setOriginalPrice(Integer originalPrice) {
+        this.originalPrice = originalPrice;
     }
 
     public Integer getCashPrice() {
