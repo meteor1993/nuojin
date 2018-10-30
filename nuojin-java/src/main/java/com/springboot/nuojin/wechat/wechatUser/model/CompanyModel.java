@@ -18,6 +18,8 @@ public class CompanyModel {
     private Integer rebate;
     // 现金
     private Integer cash;
+    // 订单号
+    private String orderId;
 
     @Id
     @GeneratedValue(generator = "paymentableGenerator")
@@ -45,5 +47,13 @@ public class CompanyModel {
 
     public void setCash(Integer cash) {
         this.cash = cash;
+    }
+
+    public String getOrderId() {
+        return orderId;
+    }
+
+    public void setOrderId(String orderId) {
+        this.orderId = orderId;
     }
 }

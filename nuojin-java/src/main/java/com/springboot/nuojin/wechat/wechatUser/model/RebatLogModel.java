@@ -19,6 +19,7 @@ public class RebatLogModel {
     private String companyId;
     private String userOpenId;
     private Integer cash;
+    private String orderId;
 
     @Id
     @GeneratedValue(generator = "paymentableGenerator")
@@ -62,5 +63,13 @@ public class RebatLogModel {
 
     public void setCash(Integer cash) {
         this.cash = cash;
+    }
+
+    public String getOrderId() {
+        return orderId;
+    }
+
+    public void setOrderId(String orderId) {
+        this.orderId = orderId;
     }
 }
