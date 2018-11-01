@@ -1,4 +1,4 @@
-package com.springboot.nuojin.wechat.wechatUser.model;
+package com.springboot.nuojin.wechat.wxUser.model;
 
 import org.hibernate.annotations.GenericGenerator;
 
@@ -11,13 +11,14 @@ import javax.persistence.*;
  * Time:23:26
  **/
 @Entity
-@Table(name = "wechat_user")
-public class WechatUserModel {
+@Table(name = "wx_user")
+public class WxUserModel {
     private String id;
     private String openId;
     private String nickName;
     private String wechatImageUrl;
     private Integer sex;
+    private String phone;
     // 公司id
     private String companyId;
     // 上级公司id
@@ -65,6 +66,14 @@ public class WechatUserModel {
 
     public void setSex(Integer sex) {
         this.sex = sex;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
     }
 
     public String getCompanyId() {

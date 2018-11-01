@@ -84,6 +84,14 @@ spring:
       connectionProperties: druid.stat.mergeSql:true;druid.stat.slowSqlMillis:5000
       # 合并多个DruidDataSource的监控数据
       useGlobalDataSourceStat: true
+  swagger:
+    enabled: true
+    title: oms-API
+    description: API文档
+    base-package:  com.op.copyems.Controller
+    base-path: /**
+    exclude-path: /error
+    version: @project.version@
 logging:
   level:
     org.springframework.web: INFO

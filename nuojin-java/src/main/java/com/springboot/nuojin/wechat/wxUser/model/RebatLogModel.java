@@ -1,4 +1,4 @@
-package com.springboot.nuojin.wechat.wechatUser.model;
+package com.springboot.nuojin.wechat.wxUser.model;
 
 import org.hibernate.annotations.GenericGenerator;
 
