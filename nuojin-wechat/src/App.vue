@@ -1,3 +1,4 @@
+<!-- 展示模板 -->
 <template>
   <div id="app">
     <router-view v-if="isRouterAlive"/>

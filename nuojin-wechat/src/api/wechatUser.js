@@ -29,7 +29,7 @@ export function getUserInfo() {
 
 export function sendSMS(phone) {
   return request({
-    url: '/mp/wechatUser/sendSMS',
+    url: '/mp/wxUserController/sendSMS',
     method: 'post',
     data: {
       phone
@@ -39,7 +39,7 @@ export function sendSMS(phone) {
 
 export function bindPhone(code, phone) {
   return request({
-    url: '/mp/wechatUser/bindPhone',
+    url: '/mp/wxUserController/bindPhone',
     method: 'post',
     data: {
       code,

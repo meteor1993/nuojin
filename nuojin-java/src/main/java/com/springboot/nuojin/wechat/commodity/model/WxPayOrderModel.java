@@ -19,6 +19,9 @@ public class WxPayOrderModel {
     //商品编号
     private String commodityId;
 
+    //商品名称
+    private String commodityName;
+
     //商品数量
     private String commodityCount;
 
@@ -76,6 +79,14 @@ public class WxPayOrderModel {
 
     public void setCommodityId(String commodityId) {
         this.commodityId = commodityId;
+    }
+
+    public String getCommodityName() {
+        return commodityName;
+    }
+
+    public void setCommodityName(String commodityName) {
+        this.commodityName = commodityName;
     }
 
     public String getCommodityCount() {

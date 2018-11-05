@@ -44,7 +44,8 @@ export default {
   },
   methods: {
     sendSMS() {
-      if (this.phone.length !== 11) {
+      console.log(this.phone.substring(0,1))
+      if (this.phone.length !== 11 || this.phone.substring(0,1) !== '1') {
         Toast('请输入正确的手机号')
         return
       }
