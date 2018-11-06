@@ -5,8 +5,8 @@ axios.defaults.withCredentials = true
 
 const service = axios.create({
   // baseURL: 'http://fuhui.kaixindaka.com/', // api 的 base_url
-  baseURL: 'http://localhost:8081/',
-  timeout: 5000 // 请求超时时间
+  baseURL: 'http://alpaca.s1.natapp.cc/',
+  timeout: 50000000 // 请求超时时间
 })
 
 // request拦截器

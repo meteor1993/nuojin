@@ -2,6 +2,7 @@ package com.springboot.nuojin.system.utils;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+import com.springboot.nuojin.wechat.wxUser.model.WxUserModel;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -36,6 +37,9 @@ public class StaffCacheUtil {
         staffCache.cleanUp();
     }
 
+    public Object get(String key, Callable<WxUserModel> callable) throws ExecutionException {
+        return staffCache.get(key, callable);
+    }
     public void put(String key, Object value) throws ExecutionException {
         staffCache.put(key, value);
     }

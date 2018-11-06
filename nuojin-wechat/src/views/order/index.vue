@@ -11,9 +11,9 @@
     <div v-if="flag">
       <div style="height: 15px;" />
       <div v-for="order in orderList" :key="order.id">
-        <van-panel :title="order.productName" status="已完成">
+        <van-panel :title="order.commodityName" status="已完成">
           <div class="panel-div">
-            购买时间：{{ order.payTime | dataFormat }}
+            购买时间：{{ order.paySuccessTime | dataFormat }}
           </div>
           <div class="panel-money">
             实付款：<span class="panel-money-span">￥{{ order.orderMoney / 100 | numberFormat }}</span>
@@ -29,12 +29,12 @@
 </template>
 <script>
 import moment from 'moment'
-// import { getOrderList } from '@/api/order'
+import { getOrderList } from '@/api/order'
 
 export default {
   filters: {
-    dataFormat: function(el) {
-      return moment(el).format('YYYY-MM-DD HH:mm:ss')
+    dataFormat: function(value) {
+      return moment(value).format('YYYY-MM-DD HH:mm:ss')
     },
     numberFormat: function(money) {
       if (money && money != null) {
@@ -54,46 +54,25 @@ export default {
   data() {
     return {
       flag: true,
-      orderList: [{
-        id: '49495c72-c867-11e8-bb15-00163e0a9c21',
-        productName: '名庄红酒',
-        createDate: 1538707519000,
-        payType: '0',
-        orderMoney: 10000,
-        desc: ''
-      }, {
-        id: '49495c72-c867-11e8-bb15-00163e0a9c22',
-        productName: '女王醉蟹',
-        createDate: 1538707519000,
-        payType: '1',
-        orderMoney: 20000,
-        desc: ''
-      }, {
-        id: '49495c72-c867-11e8-bb15-00163e0a9c23',
-        productName: '滋补养生',
-        createDate: 1538707519000,
-        payType: '1',
-        orderMoney: 30000,
-        desc: ''
-      }]
+      orderList: []
     }
   },
   created() {
-    // this.getOrderList()
+    this.getOrderList()
   },
   methods: {
-    // getOrderList() {
-    //   getOrderList().then(response => {
-    //     if (response.resultCode === '1') {
-    //       const list = response.resultData.list
-    //       console.log(list)
-    //       if (list !== null) {
-    //         this.flag = true
-    //         this.orderList = list
-    //       }
-    //     }
-    //   })
-    // },
+    getOrderList() {
+      getOrderList().then(response => {
+        if (response.resultCode === '1') {
+          const list = response.resultData.list
+          console.log(list.length)
+           if (list.length !== "0") {
+             this.flag = true
+             this.orderList = list
+          }
+        }
+      })
+    },
     onClickLeft() {
       this.$router.go(-1)
     },

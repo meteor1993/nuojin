@@ -14,7 +14,7 @@ export function submitOrder(id, useNum, payType) {
 
 export function getOrderList() {
   return request({
-    url: '/mp/wechatOrder/getOrderList',
+    url: '/mp/wxPayOrderController/getOrderList',
     method: 'post'
   })
 }

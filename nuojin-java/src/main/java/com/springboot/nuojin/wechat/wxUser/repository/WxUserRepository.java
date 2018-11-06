@@ -13,5 +13,5 @@ import org.springframework.data.repository.PagingAndSortingRepository;
 public interface WxUserRepository extends PagingAndSortingRepository<WxUserModel, Long>, JpaSpecificationExecutor<WxUserModel> {
 
     //根据openId获取用户信息
-    WxUserModel findWxUserModelByOpenId(String openId);
+    WxUserModel getByOpenIdIs(String openId);
 }
