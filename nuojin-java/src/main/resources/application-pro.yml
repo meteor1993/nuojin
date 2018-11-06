@@ -17,7 +17,7 @@ server:
   connection-timeout: 1800
 spring:
   application:
-      name: fuhui
+      name: nuojin
   jackson:
     date-format: yyyy-MM-dd HH:mm:ss
     time-zone: Asia/Shanghai
@@ -87,7 +87,6 @@ spring:
 logging:
   level:
     org.springframework.web: INFO
-    com.fsg.salary: INFO
   pattern:
     level: INFO
   file: /var/log/fuhui.log
