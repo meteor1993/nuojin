@@ -17,6 +17,10 @@ public class OfflineOrderModel {
     private String id;
     private Date createDate;
     private Date updateDate;
+    // 省份、城市、区县、乡镇 code
+    private String cityCode;
+    // 地址
+    private String address;
     // 订单号
     private String orderNo;
     // 单价
@@ -27,5 +31,6 @@ public class OfflineOrderModel {
     private  String channel;
     // 状态 0创建 1发货 2退货
     private String status;
-
+    // 产品 1.标准版 2.星空版
+    private String productNo;
 }
