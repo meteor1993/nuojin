@@ -33,4 +33,10 @@ public class OfflineOrderModel {
     private String status;
     // 产品 1.标准版 2.星空版
     private String productNo;
+    // 快递单号
+    private String expressNo;
+    // 快递公司
+    private String expressCompany;
+    // 发货时间
+    private Date sendDate;
 }
