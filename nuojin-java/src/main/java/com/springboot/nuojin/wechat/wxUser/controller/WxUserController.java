@@ -60,9 +60,40 @@ public class WxUserController {
         return new ModelAndView(new RedirectView(url));
     }
 
+    @PostMapping(value = "/getOauthUrl")
+    @ResponseBody
+    public CommonJson getOauthUrl() throws IOException {
+
+        String params = HttpUtils.getBodyString(ContextHolderUtils.getRequest().getReader());
+
+        logger.info("WechatUserController.getOauthUrl>>>>>>>>>>>>params:" + params);
+
+        JSONObject jsonObject = JSON.parseObject(params);
+        String key = jsonObject.getString("key");
+
+        CommonJson json = new CommonJson();
+
+        if ("NA2i760YXSgfsiOlQl8z4ps5Zll73FfM".equals(key)) {
+            String url = wxMpService.oauth2buildAuthorizationUrl("http://alpaca.s1.natapp.cc/mp/wechatUser/getCode", WxConsts.OAuth2Scope.SNSAPI_USERINFO, null);
+            logger.info("WechatUserController.getOauthUrl>>>>>>>>>>>>url:" + url);
+            Map<String, Object> map = Maps.newHashMap();
+            map.put("url", url);
+
+            json.setResultCode("1");
+            json.setResultData(map);
+            json.setResultMsg("success");
+            return json;
+        } else {
+            json.setResultCode("0");
+            json.setResultData(null);
+            json.setResultMsg("fail");
+            return json;
+        }
+    }
+
     @GetMapping(value = "/getCode")
     public ModelAndView getCode(@RequestParam String code, HttpServletResponse response) throws WxErrorException, ExecutionException, IOException {
-        logger.info(">>>>>>>>>>>>>>>>WxUserController.getToken.getCode>>>>>>>>>>>>>>>");
+        logger.info(">>>>>>>>>>>>>>>>WxUserController.getToken.getCode>>>>>>>>>>>>>>>code："+code);
         WxMpOAuth2AccessToken wxMpOAuth2AccessToken = wxMpService.oauth2getAccessToken(code);
         WxMpUser wxMpUser = wxMpService.oauth2getUserInfo(wxMpOAuth2AccessToken, "zh_CN");
         logger.info(">>>>>>>>>>>>>>>>>>>>>>>>>>wxMpUser:" + wxMpUser.toString());

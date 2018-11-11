@@ -2,7 +2,7 @@ import request from '@/utils/request'
 
 export function getOauthUrl(key) {
   return request({
-    url: '/mp/wechatUser/getOauthUrl',
+    url: '/mp/wxUserController/getOauthUrl',
     method: 'post',
     data: {
       key
@@ -12,7 +12,7 @@ export function getOauthUrl(key) {
 
 export function getTokens(key) {
   return request({
-    url: '/mp/wechatUser/getToken',
+    url: '/mp/wxUserController/getToken',
     method: 'post',
     data: {
       key
@@ -22,7 +22,7 @@ export function getTokens(key) {
 
 export function getUserInfo() {
   return request({
-    url: '/mp/wechatUser/getUserInfo',
+    url: '/mp/wxUserController/getUserInfo',
     method: 'post'
   })
 }
@@ -44,33 +44,6 @@ export function bindPhone(code, phone) {
     data: {
       code,
       phone
-    }
-  })
-}
-
-export function bindCarNum(carNum) {
-  return request({
-    url: '/mp/wechatUser/bindCarNum',
-    method: 'post',
-    data: {
-      carNum
-    }
-  })
-}
-
-export function findCarNumListByOpenId() {
-  return request({
-    url: '/mp/wechatUser/findCarNumListByOpenId',
-    method: 'post'
-  })
-}
-
-export function delCarNumById(id) {
-  return request({
-    url: '/mp/wechatUser/delCarNumById',
-    method: 'post',
-    data: {
-      id
     }
   })
 }
