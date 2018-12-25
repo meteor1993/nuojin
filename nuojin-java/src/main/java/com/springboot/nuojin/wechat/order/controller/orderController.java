@@ -74,7 +74,8 @@ public class orderController {
     {
         //获取所有除了未支付以外状态的所有订单
         String openId = "oQz2Q0YfNmE--tNH-P7reZb7nXSE"; //Common.getOpenId();
-        List<Object> list = orderRespository.getByOpenId(openId);
+        //List<Object> list = orderRespository.getByOpenId(openId);
+        List<ordermodel> list = orderRespository.getByOpenId(openId);
         CommonJson commonJson = new CommonJson();
         commonJson.setResultCode("1");
         commonJson.setResultMsg("success");
