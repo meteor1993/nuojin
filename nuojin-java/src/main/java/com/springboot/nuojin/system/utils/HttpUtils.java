@@ -14,12 +14,12 @@ public class HttpUtils {
 
     public static String getBodyString(BufferedReader br) {
         String inputLine;
-        String str = "";
-        try {
-            while ((inputLine = br.readLine()) != null) {
-                str += inputLine;
-            }
-            br.close();
+            String str = "";
+            try {
+                while ((inputLine = br.readLine()) != null) {
+                    str += inputLine;
+                }
+                br.close();
         } catch (IOException e) {
             System.out.println("IOException: " + e);
         }

@@ -107,3 +107,8 @@ wechat:
     secret: e95f46d7928a9c5ced0396907625222a
     token: TdbjScsWLoRDLRFYLA27in6o9YSOa6vI
     aesKey:
+  pay:
+    appId: wx538c47cb7ffaa26e
+    mchId: 1517852661
+    mchKey: 00630f18069111e9bb1500163e0a9c22
+    keyPath: D:\下载\cert

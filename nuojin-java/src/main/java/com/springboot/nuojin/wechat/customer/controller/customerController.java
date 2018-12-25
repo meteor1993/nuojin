@@ -1,4 +1,5 @@
-package com.springboot.nuojin.wechat.wxUser.controller;
+package com.springboot.nuojin.wechat.customer.controller;
+
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
@@ -11,8 +12,14 @@ import com.springboot.nuojin.system.model.CommonJson;
 import com.springboot.nuojin.system.utils.ContextHolderUtils;
 import com.springboot.nuojin.system.utils.HttpUtils;
 import com.springboot.nuojin.system.utils.StaffCacheUtil;
+import com.springboot.nuojin.wechat.Utils.Common;
+import com.springboot.nuojin.wechat.customer.model.accountmodel;
+import com.springboot.nuojin.wechat.customer.model.customermodel;
+import com.springboot.nuojin.wechat.customer.model.customeroutmodel;
+import com.springboot.nuojin.wechat.customer.respository.AccountRespository;
+import com.springboot.nuojin.wechat.customer.respository.CustomerRespository;
+import com.springboot.nuojin.wechat.wxUser.controller.WxUserController;
 import com.springboot.nuojin.wechat.wxUser.model.WxUserModel;
-import com.springboot.nuojin.wechat.wxUser.repository.WxUserRepository;
 import me.chanjar.weixin.common.api.WxConsts;
 import me.chanjar.weixin.common.error.WxErrorException;
 import me.chanjar.weixin.mp.api.WxMpService;
@@ -25,6 +32,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 
+import javax.naming.Context;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.text.ParseException;
@@ -33,196 +41,69 @@ import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 
-/**
- * @Author: daixueyun
- * @Description:
- * @Date: Create in 23:04 2018/11/4
- */
 @RestController
-@RequestMapping(path = "/mp/wxUserController")
-public class WxUserController {
+@RequestMapping(path = "/mp/customerController")
+public class customerController {
 
     private final Logger logger = LoggerFactory.getLogger(WxUserController.class);
+    @Autowired
+    CustomerRespository CustomerRespository;
+
+    @Autowired
+    AccountRespository AccountRespository;
 
     @Autowired
     private WxMpService wxMpService;
 
     @Autowired
-    SMSRepository smsRepository;
+    private SMSRepository smsRepository;
 
-    @Autowired
-    WxUserRepository wxUserRepository;
-
-    @GetMapping(value = "/oauth2Wechat")
-    public ModelAndView oauth2Wechat() {
-        String url = wxMpService.oauth2buildAuthorizationUrl("http://alpaca.s1.natapp.cc/mp/wxUserController/getCode", WxConsts.OAuth2Scope.SNSAPI_USERINFO, null);
-        logger.info(">>>>>>>>>>>>>>>>>>>url:" + url);
-        return new ModelAndView(new RedirectView(url));
-    }
-
-    @PostMapping(value = "/getOauthUrl")
+    @PostMapping(value = "/getCustomer")
     @ResponseBody
-    public CommonJson getOauthUrl() throws IOException {
-
-        String params = HttpUtils.getBodyString(ContextHolderUtils.getRequest().getReader());
-
-        logger.info("WechatUserController.getOauthUrl>>>>>>>>>>>>params:" + params);
-
-        JSONObject jsonObject = JSON.parseObject(params);
-        String key = jsonObject.getString("key");
+    /**
+     * 获取微信用户以及账户信息
+     */
+    public CommonJson getCustomer() throws IOException {
 
         CommonJson json = new CommonJson();
-
-        if ("NA2i760YXSgfsiOlQl8z4ps5Zll73FfM".equals(key)) {
-            String url = wxMpService.oauth2buildAuthorizationUrl("http://alpaca.s1.natapp.cc/mp/wechatUser/getCode", WxConsts.OAuth2Scope.SNSAPI_USERINFO, null);
-            logger.info("WechatUserController.getOauthUrl>>>>>>>>>>>>url:" + url);
-            Map<String, Object> map = Maps.newHashMap();
-            map.put("url", url);
-
-            json.setResultCode("1");
-            json.setResultData(map);
-            json.setResultMsg("success");
-            return json;
-        } else {
-            json.setResultCode("0");
-            json.setResultData(null);
-            json.setResultMsg("fail");
-            return json;
-        }
-    }
-
-    @GetMapping(value = "/getCode")
-    public ModelAndView getCode(@RequestParam String code, HttpServletResponse response) throws WxErrorException, ExecutionException, IOException {
-        logger.info(">>>>>>>>>>>>>>>>WxUserController.getToken.getCode>>>>>>>>>>>>>>>code："+code);
-        WxMpOAuth2AccessToken wxMpOAuth2AccessToken = wxMpService.oauth2getAccessToken(code);
-        WxMpUser wxMpUser = wxMpService.oauth2getUserInfo(wxMpOAuth2AccessToken, "zh_CN");
-        logger.info(">>>>>>>>>>>>>>>>>>>>>>>>>>wxMpUser:" + wxMpUser.toString());
-        WxUserModel wxUserModel = wxUserRepository.getByOpenIdIs(wxMpUser.getOpenId());
-        wxUserModel = new WxUserModel();
-        wxUserModel.setOpenId(wxMpUser.getOpenId());
-        // 更新微信信息
-        wxUserModel.setNickName(wxMpUser.getNickname());
-        wxUserModel.setSex(wxMpUser.getSex());
-        wxUserModel.setWechatImageUrl(wxMpUser.getHeadImgUrl());
-
-        wxUserModel = wxUserRepository.save(wxUserModel);
-
-        // 生成token
-        String token = UUID.randomUUID().toString();
-        // 将WxUserModel存入缓存
-        StaffCacheUtil.create().put(token, wxUserModel);
-        response.sendRedirect("http://localhost:8080/#/home?token=" + token);
-
-        return null;
-    }
-
-
-    /**
-     * 获取token，完成腾讯交互获取微信用户信息，并相关数据存入缓存
-     * @return
-     * @throws IOException
-     * @throws ExecutionException
-     */
-    @PostMapping(value = "/getToken")
-    @ResponseBody
-    public CommonJson getToken() throws IOException, ExecutionException {
-        String params = HttpUtils.getBodyString(ContextHolderUtils.getRequest().getReader());
-
-        logger.info("WxUserController.getToken>>>>>>>>>>>>params:" + params);
-
-            JSONObject jsonObject = JSON.parseObject(params);
-            String key = jsonObject.getString("key");
-            CommonJson json = new CommonJson();
-            // 如果key相符合
-            if ("NA2i760YXSgfsiOlQl8z4ps5Zll73FfM".equals(key)) {
-                // 和腾讯交互，获取WxMpUser，并更新或者保存WxUserModel
-                WxMpUser wxMpUser = new WxMpUser();
-            wxMpUser.setOpenId("111111111");
-            wxMpUser.setHeadImgUrl("http://storage.360buyimg.com/i.imageUpload/4d6574656f723139393331353134323936363537373539_mid.jpg");
-
-            WxUserModel WxUserModel = wxUserRepository.getByOpenIdIs(wxMpUser.getOpenId());
-
-            WxUserModel = new WxUserModel();
-            WxUserModel.setOpenId(wxMpUser.getOpenId());
-            // 更新微信信息
-            WxUserModel.setNickName(wxMpUser.getNickname());
-            WxUserModel.setSex(wxMpUser.getSex());
-            WxUserModel.setWechatImageUrl(wxMpUser.getHeadImgUrl());
-
-            WxUserModel = wxUserRepository.save(WxUserModel);
-
-            // 生成token
-            String token = UUID.randomUUID().toString();
-            // 将WxUserModel存入缓存
-            StaffCacheUtil.create().put(token, WxUserModel);
-            // 将token返回
-            Map<String, Object> map = Maps.newHashMap();
-            map.put("token", token);
-            json.setResultCode("1");
-            json.setResultMsg("success");
-            json.setResultData(map);
-            return json;
-        }
-
-        return null;
-    }
-
-    /**
-     * 获取用户信息
-     * @return
-     */
-    @PostMapping(value = "/getUserInfo")
-    @ResponseBody
-    public CommonJson getUserInfo() {
-        String token = ContextHolderUtils.getRequest().getHeader("token");
-
-        logger.info("WxUserController.getUserInfo>>>>>>>>>>>>token:" + token);
-
-        WxUserModel WxUserModel = null;
-
-        try {
-            WxUserModel = (WxUserModel) StaffCacheUtil.create().get(token, new Callable<WxUserModel>() {
-                @Override
-                public WxUserModel call() throws Exception {
-                    return null;
-                }
-            });
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-        }
-
-        CommonJson json = new CommonJson();
-
         Map<String, Object> map = Maps.newHashMap();
-
-        if (WxUserModel != null) {
-            WxUserModel = wxUserRepository.getByOpenIdIs(WxUserModel.getOpenId());
-            map.put("info", WxUserModel);
-            json.setResultCode("1");
-            json.setResultMsg("success");
-            json.setResultData(map);
-        } else {
-            json.setResultCode("0");
-            json.setResultMsg("fail");
-        }
-
+        List<Object> outlist = CustomerRespository.selectallinfo(Common.getOpenId());
+        map.put("info",outlist);
+        json.setResultCode("1");
+        json.setResultMsg("success");
+        json.setResultData(map);
         return json;
     }
 
-    /**
-     * 获取随机数
-     * @return
+    /***
+     * 账户余额提现
+     * @return 返回成功或者失败
+     * @throws IOException
      */
-    private String getRandomCode() {
-        Random rad = new Random();
-
-        String result = rad.nextInt(1000000) + "";
-
-        if(result.length() != 6){
-            return getRandomCode();
+    public CommonJson getMoney() throws IOException {
+        String params = HttpUtils.getBodyString(ContextHolderUtils.getRequest().getReader());
+        JSONObject jsonObject = JSON.parseObject(params);
+        String money = jsonObject.getString("money");
+        int nummoney = Integer.parseInt(money);
+        accountmodel account = AccountRespository.getByOpenId(Common.getOpenId());
+        CommonJson json = new CommonJson();
+        if (account.balance-nummoney>=0)
+        {
+            //调用微信提现方法
+            json.setResultCode("1");
+            json.setResultMsg("提现成功！");
         }
-        return result;
+        else
+        {
+            json.setResultCode("1");
+            json.setResultMsg("余额不足！");
+        }
+        return json;
+
     }
+
+
+
 
     /**
      * 发送短信
@@ -248,7 +129,6 @@ public class WxUserController {
             json.setResultMsg("请输入正确的手机号");
             return json;
         }
-
         AliyunSMSUtils smsUtils = AliyunSMSUtils.getInstance();
 
         String code = getRandomCode();
@@ -280,6 +160,20 @@ public class WxUserController {
         return json;
     }
 
+    /**
+     * 获取随机数
+     * @return
+     */
+    private String getRandomCode() {
+        Random rad = new Random();
+
+        String result = rad.nextInt(1000000) + "";
+
+        if(result.length() != 6){
+            return getRandomCode();
+        }
+        return result;
+    }
     /**
      * 绑定手机
      * @return
@@ -347,12 +241,12 @@ public class WxUserController {
             logger.error("error", e);
         }
 
-        WxUserModel wxUserModel = null;
+        customermodel customer = null;
 
         try {
-            wxUserModel = (WxUserModel) StaffCacheUtil.create().get(token, new Callable<WxUserModel>() {
+            customer = (customermodel) StaffCacheUtil.create().getcustomermodel(token, new Callable<customermodel>() {
                 @Override
-                public WxUserModel call() throws Exception {
+                public customermodel call() throws Exception {
                     return null;
                 }
             });
@@ -360,17 +254,17 @@ public class WxUserController {
             e.printStackTrace();
         }
 
-        if (wxUserModel == null) {
+        if (customer == null) {
             json.setResultCode("0");
             json.setResultMsg("网络异常，请稍后重试");
             return json;
         }
 
         if ("1".equals(json.getResultCode())) { // 验证码校验通过
-            wxUserModel = wxUserRepository.getByOpenIdIs(wxUserModel.getOpenId());
-            if (wxUserModel != null) {
-                wxUserModel.setPhone(phone);
-                wxUserRepository.save(wxUserModel);
+            customer = CustomerRespository.getByOpenId(customer.getOpenId());
+            if (customer != null) {
+                customer.setMobile(phone);
+                CustomerRespository.save(customer);
                 json.setResultCode("1");
                 json.setResultMsg("手机绑定成功");
                 json.setResultData(null);
@@ -383,5 +277,52 @@ public class WxUserController {
         }
 
         return json;
+    }
+
+
+
+    @GetMapping(value = "/oauth2Wechat")
+    public ModelAndView oauth2Wechat() {
+        String url = wxMpService.oauth2buildAuthorizationUrl("http://alpaca.s1.natapp.cc/mp/wxUserController/getCode", WxConsts.OAuth2Scope.SNSAPI_USERINFO, null);
+        logger.info(">>>>>>>>>>>>>>>>>>>url:" + url);
+        return new ModelAndView(new RedirectView(url));
+    }
+
+    @GetMapping(value = "/getCode")
+    public ModelAndView getCode(@RequestParam String code, HttpServletResponse response) throws WxErrorException, ExecutionException, IOException {
+        logger.info(">>>>>>>>>>>>>>>>WxUserController.getToken.getCode>>>>>>>>>>>>>>>code："+code);
+        WxMpOAuth2AccessToken wxMpOAuth2AccessToken = wxMpService.oauth2getAccessToken(code);
+        WxMpUser wxMpUser = wxMpService.oauth2getUserInfo(wxMpOAuth2AccessToken, "zh_CN");
+        logger.info(">>>>>>>>>>>>>>>>>>>>>>>>>>wxMpUser:" + wxMpUser.toString());
+
+        customermodel customer = CustomerRespository.getByOpenId(wxMpUser.getOpenId());
+        if(customer == null)
+        {
+
+            customer = new customermodel();
+
+        }
+        customer.setOpenId(wxMpUser.getOpenId());
+        // 更新微信信息
+        customer.setNickName(wxMpUser.getNickname());
+        customer.setSex(wxMpUser.getSex());
+        customer.setWechatImageUrl(wxMpUser.getHeadImgUrl());
+        customer = CustomerRespository.save(customer);
+
+        //更新账户信息
+        accountmodel custaccount = AccountRespository.getByOpenId(customer.openId);
+        if (custaccount == null)
+        {
+            custaccount = new accountmodel();
+            custaccount.setBalance(0);
+            custaccount.setModitfyTime(new Date());
+            custaccount.setOpenId(customer.openId);
+        }
+        // 生成token
+        String token = UUID.randomUUID().toString();
+        // 将customermodel存入缓存
+        StaffCacheUtil.create().put(token, customer);
+        response.sendRedirect("http://localhost:8080/#/home?token=" + token);
+        return null;
     }
 }

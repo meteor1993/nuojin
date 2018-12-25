@@ -82,17 +82,17 @@ public class OfflineOrderController {
     public CommonJson delOfflineOrder() throws IOException {
         String params = HttpUtils.getBodyString(ContextHolderUtils.getRequest().getReader());
         logger.info(params);
-        JSONObject jsonObject = JSONObject.parseObject(params);
-        String id = jsonObject.getString("id");
-        OfflineOrderModel offlineOrderModel = offlineOrderRepository.getByIdIs(id);
+    JSONObject jsonObject = JSONObject.parseObject(params);
+    String id = jsonObject.getString("id");
+    OfflineOrderModel offlineOrderModel = offlineOrderRepository.getByIdIs(id);
         offlineOrderRepository.delete(offlineOrderModel);
 
-        CommonJson json = new CommonJson();
+    CommonJson json = new CommonJson();
         json.setResultCode("1");
         json.setResultMsg("success");
 
         return json;
-    }
+}
 
     /**
      * 保存或更新订单
