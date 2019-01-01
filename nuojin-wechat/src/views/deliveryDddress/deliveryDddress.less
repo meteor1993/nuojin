@@ -1,0 +1,103 @@
+.header {
+  padding: 6px 10px;
+  position: relative;
+  .arrow {
+    position: absolute;
+    top: 14%;
+    i {
+      font-size: 26px;
+    }
+  }
+  .headerTitle {
+    text-align: center;
+    font-size: 18px;
+    font-weight: 700;
+  }
+}
+
+.content {
+  margint-top: 20px;
+  padding: 14px 16px;
+  ul {
+    .item {
+      padding: 16px 0 16px 40px;
+      border-bottom: 1px solid #ececec;
+      position: relative;
+      .circleBox,
+      .circleBoxFalse {
+        width: 20px;
+        height: 20px;
+        border: 1px solid #e5e5e5;
+        position: absolute;
+        left: 2%;
+        top: 50%;
+        transform: translateY(-50%);
+        border-radius: 50%;
+        text-align: center;
+        line-height: 20px;
+        i {
+          font-size: 14px;
+          color: #fff;
+        }
+      }
+      .circleBox {
+        background-color: #a24241;
+      }
+      .infoUser {
+        font-size: 16px;
+        font-weight: 700;
+        position: relative;
+        span:first-child {
+          margin-right: 20px;
+        }
+        .default {
+          position: absolute;
+          left: 60%;
+          top: 10%;
+          font-size: 12px;
+          padding: 0 4px;
+          background-color: #a04140;
+          text-align: center;
+          color: #fff;
+          font-weight: 400;
+        }
+      }
+      .address {
+        margin-top: 8px;
+        font-size: 14px;
+        color: #b7b7b7;
+      }
+      .imgIcon {
+        width: 24px;
+        height: 24px;
+        position: absolute;
+        right: 0;
+        top: 50%;
+        img {
+          width: 100%;
+          height: auto;
+        }
+      }
+    }
+  }
+}
+.btn {
+  padding: 0 16px;
+  .preservation,
+  .delete {
+    width: 100%;
+    border: none;
+    padding: 14px 0;
+    background-color: #a14241;
+    font-size: 18px;
+    color: #fff;
+    margin-bottom: 14px;
+    font-weight: 700;
+  }
+  .delete {
+    background-color: #fff;
+    border: 1px solid #e5e5e5;
+    box-sizing: border-box;
+    color: #000;
+  }
+}

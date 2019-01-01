@@ -73,6 +73,11 @@ public class FuhuiApplicationTests {
 
         result = restTemplate.postForObject(url1, formEntity2, String.class);
 
+        JSONObject jsonObject = JSON.parseObject(result);
+        result = jsonObject.getString("bizContent");
+
+        result = RSAUtils.decode(result, privateKey);
+
         System.out.println(result);
 
 
