@@ -6,30 +6,73 @@ Vue.use(Router)
 export const constantRouterMap = [
   {
     path: '/',
-    component: () => import('@/views/home/index')
-  },
-  {
-    path: '/home',
     name: 'home',
-    component: () => import('@/views/home/index')
+    component: () => import('@/views/shoppingMall/shoppingMall.vue')
   },
   {
-    path: '/user',
-    name: 'user',
-    component: () => import('@/views/user/index')
+    path: '/userInfo',
+    name: 'userInfo',
+    component: () => import('@/views/userInfo/userInfo.vue')
   },
   {
-    path: '/bindPhone',
-    name: 'bindPhone',
-    component: () => import('@/views/bindPhone/index')
+    path: '/submitReturns',
+    name: 'submitReturns',
+    component: () => import('@/views/submitReturns/submitReturns.vue')
+  },
+  {
+    path: '/shoppingMall',
+    name: 'shoppingMall',
+    component: () => import('@/views/shoppingMall/shoppingMall.vue')
+  },
+  {
+    path: '/pipelineRecord',
+    name: 'pipelineRecord',
+    component: () => import('@/views/pipelineRecord/pipelineRecord.vue')
   },
   {
     path: '/order',
     name: 'order',
-    component: () => import('@/views/order/index')
+    component: () => import('@/views/order/order.vue')
+  },
+  {
+    path: '/newAddress',
+    name: 'newAddress',
+    component: () => import('@/views/newAddress/newAddress.vue')
+  },
+  {
+    path: '/myOrder',
+    name: 'myOrder',
+    component: () => import('@/views/myOrder/myOrder.vue')
+  },
+  {
+    path: '/editAddress',
+    name: 'editAddress',
+    component: () => import('@/views/editAddress/editAddress.vue')
+  },
+  {
+    path: '/detailsPage',
+    name: 'detailsPage',
+    component: () => import('@/views/detailsPage/detailsPage.vue')
+  },
+  {
+    path: '/deliveryDddress',
+    name: 'deliveryDddress',
+    component: () => import('@/views/deliveryDddress/deliveryDddress.vue')
+  },
+  {
+    path: '/agentApplication',
+    name: 'agentApplication',
+    component: () => import('@/views/agentApplication/agentApplication.vue')
+  },
+  {
+    path: '/addAddress',
+    name: 'addAddress',
+    component: () => import('@/views/addAddress/addAddress.vue')
   }
 ]
 
 export default new Router({
+  mode: 'history', //后端支持可开
+  scrollBehavior: () => ({ y: 0 }),
   routes: constantRouterMap
 })

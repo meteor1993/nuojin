@@ -1,0 +1,55 @@
+.header {
+  padding: 6px 10px;
+  position: relative;
+  .arrow {
+    position: absolute;
+    top: 14%;
+    i {
+      font-size: 26px;
+    }
+  }
+  .headerTitle {
+    text-align: center;
+    font-size: 18px;
+    font-weight: 700;
+  }
+}
+.content {
+  padding: 0 13px;
+  ul {
+    margin-top: 6px;
+    .item {
+      padding: 14px 50px;
+      border-bottom: 1px solid #ececec;
+      position: relative;
+      .price {
+        position: absolute;
+        right: 0;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 16px;
+        font-weight: 700;
+        &.active {
+          color: #e87729;
+        }
+      }
+      img {
+        position: absolute;
+        left: 0;
+        top: 50%;
+        transform: translateY(-50%);
+        border-radius: 50%;
+      }
+      .info {
+        font-size: 16px;
+        font-weight: 700;
+        margin-top: 6px;
+      }
+      .transaction {
+        margin-top: 8px;
+        color: #c7c7c7;
+        font-size: 12px;
+      }
+    }
+  }
+}

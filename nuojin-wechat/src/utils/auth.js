@@ -1,13 +1,13 @@
-const sessionKey = 'wechat-key'
+const TokenKey = 'wechat-token'
 
 export function getToken() {
-  return sessionStorage.getItem(sessionKey)
+  return sessionStorage.getItem(TokenKey)
 }
 
 export function setToken(token) {
-  return sessionStorage.setItem(sessionKey, token)
+  return sessionStorage.setItem(TokenKey, token)
 }
 
 export function removeToken() {
-  return sessionStorage.removeItem(sessionKey)
+  return sessionStorage.removeItem(TokenKey)
 }

@@ -1,12 +1,10 @@
 import axios from 'axios'
 import { getToken } from '@/utils/auth'
 
-axios.defaults.withCredentials = true
-
 const service = axios.create({
   // baseURL: 'http://fuhui.kaixindaka.com/', // api 的 base_url
-  baseURL: 'http://alpaca.s1.natapp.cc/',
-  timeout: 50000000 // 请求超时时间
+  baseURL: 'http://yy0325.oicp.net',
+  timeout: 5000 // 请求超时时间
 })
 
 // request拦截器
