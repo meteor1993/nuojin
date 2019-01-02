@@ -72,14 +72,14 @@ public class CorsFilter implements Filter {
 
                 if (allowOriginList.contains(currentOrigin)) {
 
-                    response.setHeader("Access-Control-Allow-Origin", currentOrigin);
+                    response.setHeader("Access-Control-Allow-Origin", "http://localhost:9000");//currentOrigin);
 
                 }
 
             }
         } else {
             String originHeader = request.getHeader("Origin");
-            response.setHeader("Access-Control-Allow-Origin", originHeader);
+            response.setHeader("Access-Control-Allow-Origin","http://localhost:9000");// originHeader);
         }
 
         response.setHeader("Access-Control-Allow-Headers", "Content-Type,token");

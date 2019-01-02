@@ -19,6 +19,7 @@ import com.springboot.nuojin.wechat.order.Respository.OrderRefundRespository;
 import com.springboot.nuojin.wechat.order.Respository.OrderRespository;
 import com.springboot.nuojin.wechat.order.model.orderdetailmodel;
 import com.springboot.nuojin.wechat.order.model.ordermodel;
+import com.springboot.nuojin.wechat.order.model.orderoutmodel;
 import com.springboot.nuojin.wechat.order.model.orderrefundmodel;
 import com.springboot.nuojin.wechat.pay.model.WxPayOrderModel;
 import com.springboot.nuojin.wechat.pay.respository.WxPayOrderRespository;
@@ -74,13 +75,22 @@ public class orderController {
     {
         //获取所有除了未支付以外状态的所有订单
         String openId = "oQz2Q0YfNmE--tNH-P7reZb7nXSE"; //Common.getOpenId();
-        //List<Object> list = orderRespository.getByOpenId(openId);
         List<ordermodel> list = orderRespository.getByOpenId(openId);
+        //List<ordermodel> list = orderRespository.getByOpenId(openId);
+        ArrayList outlist = new ArrayList<>();
+        for(ordermodel one : list)
+        {
+            List<orderdetailmodel> dlist = orderDetailRespository.getByOrderId(one.orderId);
+            orderoutmodel oneout = new orderoutmodel(one,dlist);
+            outlist.add(oneout);
+
+        }
+
         CommonJson commonJson = new CommonJson();
         commonJson.setResultCode("1");
         commonJson.setResultMsg("success");
         Map<String, Object> map = Maps.newHashMap();
-        map.put("info",list);
+        map.put("info",outlist);
         commonJson.setResultData(map);
         return commonJson;
     }
