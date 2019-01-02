@@ -31,12 +31,12 @@
         <li class="leftBox" @click="changeShowIndex(0)">
            <img src="@/assets/images/红酒@2x.png" alt="">
         </li>
-        <li class="leftBox" @click="changeShowIndex(1)">
+        <!-- <li class="leftBox" @click="changeShowIndex(1)">
            <img src="@/assets/images/红酒@2x.png" alt="">
         </li>
         <li class="leftBox" @click="changeShowIndex(2)">
            <img src="@/assets/images/红酒@2x.png" alt="">
-        </li>
+        </li> -->
       </ul>
       <ul class="rightBox fl" v-show="showIndex == 0">
         <li class="item clearfix" v-for="(product, index) in productList" :key="index" @click="goProductDetail(product.id)">
@@ -44,12 +44,12 @@
             <img src="@/assets/images/星空版图片@2x.png" alt="">
           </div>
           <div class="rightMess fl">
-            <p class="title">{{ product.title }}</p>
+            <p class="title">{{ product.productName }}</p>
             <p class="amount">月销量<i>{{ product.payByMonth }}</i>瓶</p>
-            <p class="infoMess">{{ product.infoMess }}</p>
+            <p class="infoMess">{{ product.productSpec }}</p>
             <div class="price">
-              <p class="originalPrice">价格 <i>{{ product.originalPrice }}</i></p>
-              <p class="nowPrice"><i>&yen; </i>{{ product.nowPrice }}</p>
+              <p class="originalPrice">价格 <i>{{ product.productShowPrice / 100 | moneyFormat }}</i></p>
+              <p class="nowPrice"><i>&yen; </i>{{ product.productNormalPrice / 100 | moneyFormat }}</p>
             </div>
           </div>
         </li>

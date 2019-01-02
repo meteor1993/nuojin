@@ -1,8 +1,11 @@
 import request from '@/utils/request'
 
-export function findBasketBallUsePeople() {
+export function getByProductFirstType(productFirstType) {
   return request({
-    url: '/mp/wechatAppointment/findBasketBallUsePeople',
-    method: 'post'
+    url: '/mp/productController/getByProductFirstType',
+    method: 'post',
+    data: {
+      productFirstType
+    }
   })
 }
