@@ -39,7 +39,7 @@
         </li> -->
       </ul>
       <ul class="rightBox fl" v-show="showIndex == 0">
-        <li class="item clearfix" v-for="(product, index) in productList" :key="index" @click="goProductDetail(product.id)">
+        <li class="item clearfix" v-for="(product, index) in productList" :key="index" @click="goProductDetail(product.productId)">
           <div class="leftImg fl">
             <img src="@/assets/images/星空版图片@2x.png" alt="">
           </div>
@@ -49,7 +49,7 @@
             <p class="infoMess">{{ product.productSpec }}</p>
             <div class="price">
               <p class="originalPrice">价格 <i>{{ product.productShowPrice / 100 | moneyFormat }}</i></p>
-              <p class="nowPrice"><i>&yen; </i>{{ product.productNormalPrice / 100 | moneyFormat }}</p>
+              <p class="nowPrice"><i>&yen; </i>{{ product.productNowPrice / 100 | moneyFormat }}</p>
             </div>
           </div>
         </li>

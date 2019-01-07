@@ -9,3 +9,25 @@ export function getByProductFirstType(productFirstType) {
     }
   })
 }
+
+export function getByProductId(productId) {
+  return request({
+    url: '/mp/productController/getByProductId',
+    method: 'post',
+    data: {
+      productId
+    }
+  })
+}
+
+export function getPartnerPrice(productId) {
+  return request({
+    url: '/mp/productController/getPartnerPrice',
+    method: 'post',
+    data: {
+      productId
+    }
+  })
+}
+
+

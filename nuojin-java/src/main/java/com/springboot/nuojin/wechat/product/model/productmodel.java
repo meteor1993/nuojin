@@ -30,5 +30,19 @@ public class productmodel {
     public String productSpec;
     public String productFirstType;
     public String productSecondType;
+    @Transient
+    public int productNowPrice;
+
+    //品牌
+    public String productBrand;
+    //体积
+    public String productVolume;
+    //重量
+    public String productWeight;
+    //保质期
+    public String productShelfLife;
+    //生产日期
+    public String productDate;
+
 
 }

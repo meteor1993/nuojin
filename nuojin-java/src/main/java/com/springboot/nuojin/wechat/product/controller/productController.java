@@ -10,6 +10,7 @@ import com.springboot.nuojin.system.utils.HttpUtils;
 import com.springboot.nuojin.wechat.Utils.Common;
 import com.springboot.nuojin.wechat.customer.model.customermodel;
 import com.springboot.nuojin.wechat.customer.respository.CustomerRespository;
+import com.springboot.nuojin.wechat.product.model.partnerpricemodel;
 import com.springboot.nuojin.wechat.product.model.productmodel;
 import com.springboot.nuojin.wechat.product.respository.PartnerPriceRespository;
 import com.springboot.nuojin.wechat.product.respository.ProductRespository;
@@ -43,10 +44,17 @@ public class productController {
     @ResponseBody
     public CommonJson getByProductFirstType() throws IOException {
         String params = HttpUtils.getBodyString(ContextHolderUtils.getRequest().getReader());
-
+        String openId = "oQz2Q0YfNmE--tNH-P7reZb7nXSE";//Common.getOpenId();
         JSONObject jsonObject = JSON.parseObject(params);
         String productFirstType = jsonObject.getString("productFirstType");
         List<productmodel> list = productRespository.getByProductFirstType(productFirstType);
+
+        for(productmodel oneproduct:list)
+        {
+            getNowProductPrice(oneproduct,openId);
+        }
+
+
         CommonJson json = new CommonJson();
         json.setResultCode("1");
         json.setResultMsg("success");
@@ -55,14 +63,41 @@ public class productController {
         json.setResultData(map);
         return json;
     }
+
+    private void getNowProductPrice(productmodel one,String openId)
+    {
+        customermodel mycust = customerRespository.getByOpenId(openId);
+        int level = mycust.getLevel();
+        if (level == 2)
+        {
+            //合伙人
+            List<partnerpricemodel> partnerList = partnerPriceRespository.getByProductId(one.productId,level);
+            one.productNowPrice = partnerList.get(0).price;
+
+        }
+        else if(level == 1)
+        {
+            one.productNowPrice = one.productOfflinePrice;
+        }
+        else
+        {
+            one.productNowPrice = one.productNormalPrice;
+        }
+
+    }
+
     @PostMapping(value = "/getByProductId")
     @ResponseBody
     public CommonJson getByProductId() throws IOException {
         String params = HttpUtils.getBodyString(ContextHolderUtils.getRequest().getReader());
+        String openId = "oQz2Q0YfNmE--tNH-P7reZb7nXSE";//Common.getOpenId();
 
         JSONObject jsonObject = JSON.parseObject(params);
         String productId = jsonObject.getString("productId");
+
         productmodel one = productRespository.getByProductId(productId);
+
+        getNowProductPrice(one,openId);
         CommonJson json = new CommonJson();
         json.setResultCode("1");
         json.setResultMsg("success");
@@ -78,7 +113,7 @@ public class productController {
         String params = HttpUtils.getBodyString(ContextHolderUtils.getRequest().getReader());
         JSONObject jsonObject = JSON.parseObject(params);
         String productId = jsonObject.getString("productId");
-        String openId = Common.getOpenId();
+        String openId = "oQz2Q0YfNmE--tNH-P7reZb7nXSE";//Common.getOpenId();
         customermodel onecustomer = customerRespository.getByOpenId(openId);
         HashMap hm = new HashMap();
         CommonJson commonJson = new CommonJson();

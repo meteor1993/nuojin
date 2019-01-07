@@ -27,11 +27,11 @@
               alt=""
             >
           </div>
-          <p class="titleInfo">星空版</p>
-          <p class="infoContent">一款好酒</p>
+          <p class="titleInfo">{{productmodel.productName}}</p>
+          <p class="infoContent">{{productmodel.productDescString}}</p>
           <div class="price">
-            <p class="primary">价格 <span>264</span></p>
-            <p class="nowPrice">&yen; <span>240</span></p>
+            <p class="primary">价格 <span>{{productmodel.productShowPrice/100}}</span></p>
+            <p class="nowPrice">&yen; <span>{{productmodel.productNowPrice/100}}</span></p>
           </div>
         </li>
       </ul>
@@ -40,34 +40,35 @@
         <div class="fr">
           <div class="numberBox clearfix">
             <div class="reduction fl" @click="reductionNumber">-</div>
-            <input type="number" class="numberB fl" @change="numberIn" v-model="numberInput">
+            <input type="number"  class="numberB fl" @change="numberIn" v-model="numberInput">
             <div class="add fl" @click="addNumber">+</div>
           </div>
         </div>
       </div>
-      <div class="amount clearfix">
+      <!-- <div class="amount clearfix">
         <p class="fl">配送费</p>
         <p class="fr">&yen; 10</p>
-      </div>
+      </div> -->
     </div>
     <div class="footer">
       <div class="total clearfix">
         <div class="totalPrice fl">
-          <span>总计 </span>
-          <span><i>&yen;</i>600</span>
+          <!-- <span>总计 </span>
+          <span><i>&yen;</i>600</span> -->
         </div>
         <div class="totalDiscount fl">
-          <span>优惠 </span>
-          <span><i>&yen;</i>300</span>
+        
         </div>
-        <div class="totalPriceShop fr">
-          <span>实付 </span>
-          <span><i>&yen;</i>310</span>
+        <div  class="totalPriceShop fr">
+          <!-- <span>实付 </span>
+          <span><i>&yen;</i>310</span> -->
+            <span>优惠 </span>
+          <span><i>&yen;</i>300</span>
         </div>
       </div>
       <div class="moneyFoot fl">
         <div class="leftBox fl">
-          <span><i>&yen;</i> 310</span>
+          <span>总计：<i>&yen;</i> {{totalmoney}}</span>
         </div>
         <div class="rightBox fl">
           <button>提交订单</button>
