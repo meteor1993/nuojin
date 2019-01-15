@@ -28,5 +28,8 @@ public class addressmodel {
     public String name;
     public String mobile;
     public String openId;
+    @Transient
+    public String showAddress;
+    public String chooseFlag;
     public Date updateDate;
 }

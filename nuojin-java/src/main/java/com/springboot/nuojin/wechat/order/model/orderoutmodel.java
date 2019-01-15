@@ -2,6 +2,7 @@ package com.springboot.nuojin.wechat.order.model;
 
 import lombok.Data;
 
+import java.util.ArrayList;
 import java.util.List;
 @Data
 public class orderoutmodel extends ordermodel {
@@ -20,10 +21,11 @@ public class orderoutmodel extends ordermodel {
         this.setPayTime(inorder.getPayTime());
         this.setPreOpenId(inorder.getPreOpenId());
         this.setUpdateTime(inorder.getUpdateTime());
+
         this.detail.addAll(indetail);
     }
 
-    public List<orderdetailmodel> detail;
+    public List<orderdetailmodel> detail=new ArrayList<orderdetailmodel>();
 
 
 }

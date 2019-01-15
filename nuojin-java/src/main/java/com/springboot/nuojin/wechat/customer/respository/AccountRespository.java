@@ -7,7 +7,6 @@ import org.springframework.data.repository.PagingAndSortingRepository;
 
 public interface AccountRespository extends PagingAndSortingRepository<accountmodel, Long>, JpaSpecificationExecutor<accountmodel> {
 
-
     accountmodel getByOpenId(String open_id);
 
 

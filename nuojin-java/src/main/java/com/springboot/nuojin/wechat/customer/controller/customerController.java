@@ -14,9 +14,11 @@ import com.springboot.nuojin.system.utils.HttpUtils;
 import com.springboot.nuojin.system.utils.StaffCacheUtil;
 import com.springboot.nuojin.wechat.Utils.Common;
 import com.springboot.nuojin.wechat.customer.model.accountmodel;
+import com.springboot.nuojin.wechat.customer.model.addressmodel;
 import com.springboot.nuojin.wechat.customer.model.customermodel;
 import com.springboot.nuojin.wechat.customer.model.customeroutmodel;
 import com.springboot.nuojin.wechat.customer.respository.AccountRespository;
+import com.springboot.nuojin.wechat.customer.respository.AddressRespository;
 import com.springboot.nuojin.wechat.customer.respository.CustomerRespository;
 import com.springboot.nuojin.wechat.wxUser.controller.WxUserController;
 import com.springboot.nuojin.wechat.wxUser.model.WxUserModel;
@@ -28,6 +30,7 @@ import me.chanjar.weixin.mp.bean.result.WxMpUser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.web.ServerProperties;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
@@ -58,20 +61,25 @@ public class customerController {
     @Autowired
     private SMSRepository smsRepository;
 
+    @Autowired
+    private  AddressRespository addressRespository;
+
     @PostMapping(value = "/getCustomer")
     @ResponseBody
     /**
      * 获取微信用户以及账户信息
      */
     public CommonJson getCustomer() throws IOException {
-
         CommonJson json = new CommonJson();
         Map<String, Object> map = Maps.newHashMap();
-        List<Object> outlist = CustomerRespository.selectallinfo(Common.getOpenId());
+        String openId = "oQz2Q0YfNmE--tNH-P7reZb7nXSE";
+        customermodel outlist = CustomerRespository.getByOpenId(openId);
+
         map.put("info",outlist);
         json.setResultCode("1");
         json.setResultMsg("success");
         json.setResultData(map);
+
         return json;
     }
 
@@ -102,8 +110,86 @@ public class customerController {
 
     }
 
+    @PostMapping(value = "/insertAddress")
+    @ResponseBody
+    public CommonJson insertAddress() throws IOException {
 
 
+        String params = HttpUtils.getBodyString(ContextHolderUtils.getRequest().getReader());
+        JSONObject jsonObject = JSON.parseObject(params);
+        String consignee = jsonObject.getString("consignee");
+        String provinceCode = jsonObject.getString("provinceCode");
+        String provinceValue = jsonObject.getString("provinceValue");
+        String mobile = jsonObject.getString("mobile");
+        String cityCode = jsonObject.getString("cityCode");
+        String cityValue = jsonObject.getString("cityValue");
+        String areaCode = jsonObject.getString("areaCode");
+        String areaValue = jsonObject.getString("areaValue");
+        String address = jsonObject.getString("address");
+        String postcode = jsonObject.getString("postcode");
+        String addressId =  jsonObject.getString("addressId");
+        addressmodel insertmodel = new addressmodel();
+        insertmodel.setDetailAddress(address);
+        addressId = addressId==null?UUID.randomUUID().toString():addressId;
+        insertmodel.setAddressId(addressId);
+        insertmodel.setAreaCode(areaCode);
+        insertmodel.setAreaValue(areaValue);
+        insertmodel.setProvinceCode(provinceCode);
+        insertmodel.setProvinceValue(provinceValue);
+        insertmodel.setPostcode(postcode);
+        insertmodel.setCityCode(cityCode);
+        insertmodel.setCityValue(cityValue);
+        insertmodel.setMobile(mobile);
+        insertmodel.setName(consignee);
+        String openId= "oQz2Q0YfNmE--tNH-P7reZb7nXSE";
+        insertmodel.setOpenId(openId);
+        insertmodel.setUpdateDate(new Date());
+        addressRespository.save((insertmodel));
+        CommonJson commonJson = new CommonJson();
+        HashMap hm = new HashMap();
+        hm.put("addressId", addressId);
+        commonJson.setResultCode("1");
+        commonJson.setResultMsg("地址新增成功");
+        commonJson.setResultData(hm);
+        return commonJson;
+    }
+    @PostMapping(value = "/getAddressList")
+    @ResponseBody
+    public CommonJson getAddressList() throws IOException {
+
+        String openId = "oQz2Q0YfNmE--tNH-P7reZb7nXSE";
+        List<addressmodel> list = addressRespository.getByOpenId(openId);
+
+        for(addressmodel one:list)
+        {
+            one.showAddress = one.provinceValue+" "+one.cityValue+" "+one.areaValue+" "+one.detailAddress;
+
+        }
+        HashMap hm = new HashMap();
+        hm.put("info", list);
+        CommonJson commonJson = new CommonJson();
+        commonJson.setResultCode("1");
+        commonJson.setResultMsg("success");
+        commonJson.setResultData(hm);
+        return commonJson;
+
+    }
+    @PostMapping(value = "/getAddressById")
+    @ResponseBody
+    public CommonJson getAddressById() throws IOException {
+        String params = HttpUtils.getBodyString(ContextHolderUtils.getRequest().getReader());
+        JSONObject jsonObject = JSON.parseObject(params);
+        String addressId = jsonObject.getString("addressId");
+        addressmodel one = addressRespository.getByAddressId(addressId);
+        HashMap hm = new HashMap();
+        hm.put("info", one);
+        CommonJson commonJson = new CommonJson();
+        commonJson.setResultCode("1");
+        commonJson.setResultMsg("success");
+        commonJson.setResultData(hm);
+        return commonJson;
+
+    }
 
     /**
      * 发送短信

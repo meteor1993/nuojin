@@ -26,7 +26,14 @@ public class ordermodel {
     public String expressCompany;
     public String expressNo;
     public String cityCode;
+    public String cityValue;
     public String address;
+    public String provinceValue;
+    public String provinceCode;
+    public String areaCode;
+    public String areaValue;
+    public String postcode;
+    public String addressId;
     public Date updateTime;
     @Column(name="bonusFlag",nullable=false,columnDefinition = "int default 0")
     public int bonusFlag;

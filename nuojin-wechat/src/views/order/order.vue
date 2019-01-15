@@ -9,12 +9,12 @@
     </div>
     <div class="userInfo" @click="goEditAddress()">
       <div class="user">
-        <span>棚子</span>
-        <span>139****2212</span>
+        <span>{{this.chooseaddress.name}}</span>
+        <span>{{this.chooseaddress.mobile}}</span>
       </div>
       <div class="address">
-        <p>上海市徐汇区 凇虹1223号</p>
-        <div class="default">默认</div>
+        <p>{{this.chooseaddress.showAddress}}</p>
+        <div class="default">选中</div>
       </div>
       <i class="iconfont icon-jiantou arrow"></i>
     </div>
@@ -71,7 +71,7 @@
           <span>总计：<i>&yen;</i> {{totalmoney}}</span>
         </div>
         <div class="rightBox fl">
-          <button>提交订单</button>
+          <button @click='OrderSumbit()'>提交订单</button>
         </div>
       </div>
     </div>

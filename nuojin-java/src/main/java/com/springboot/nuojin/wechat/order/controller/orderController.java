@@ -12,15 +12,12 @@ import com.springboot.nuojin.system.utils.HttpUtils;
 import com.springboot.nuojin.wechat.Utils.Common;
 import com.springboot.nuojin.wechat.bonus.model.bonusmodel;
 import com.springboot.nuojin.wechat.bonus.repository.BonusRepository;
+import com.springboot.nuojin.wechat.customer.model.addressmodel;
 import com.springboot.nuojin.wechat.customer.model.customermodel;
+import com.springboot.nuojin.wechat.customer.respository.AddressRespository;
 import com.springboot.nuojin.wechat.customer.respository.CustomerRespository;
-import com.springboot.nuojin.wechat.order.Respository.OrderDetailRespository;
-import com.springboot.nuojin.wechat.order.Respository.OrderRefundRespository;
-import com.springboot.nuojin.wechat.order.Respository.OrderRespository;
-import com.springboot.nuojin.wechat.order.model.orderdetailmodel;
-import com.springboot.nuojin.wechat.order.model.ordermodel;
-import com.springboot.nuojin.wechat.order.model.orderoutmodel;
-import com.springboot.nuojin.wechat.order.model.orderrefundmodel;
+import com.springboot.nuojin.wechat.order.Respository.*;
+import com.springboot.nuojin.wechat.order.model.*;
 import com.springboot.nuojin.wechat.pay.model.WxPayOrderModel;
 import com.springboot.nuojin.wechat.pay.respository.WxPayOrderRespository;
 import com.springboot.nuojin.wechat.product.model.partnerpricemodel;
@@ -37,6 +34,7 @@ import javax.transaction.Transactional;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 @RestController
@@ -61,6 +59,12 @@ public class orderController {
     OrderRefundRespository orderRefundRespository;
     @Autowired
     WxPayOrderRespository wxPayOrderRespository;
+    @Autowired
+    AddressRespository addressRespository;
+    @Autowired
+    PartnerWineRespository partnerWineRespository;
+    @Autowired
+    PartnerWineLogRespository partnerWineLogRespository;
     public orderController() {
 
     }
@@ -75,8 +79,8 @@ public class orderController {
     {
         //获取所有除了未支付以外状态的所有订单
         String openId = "oQz2Q0YfNmE--tNH-P7reZb7nXSE"; //Common.getOpenId();
-        List<ordermodel> list = orderRespository.getByOpenId(openId);
-        //List<ordermodel> list = orderRespository.getByOpenId(openId);
+        List<ordermodel> list = orderRespository.getByOpenIdOrderByCreateTimeDesc(openId);
+        //List<ordermodel> list = orderRespository.getByOpenIdOrderByCreateTimeDesc(openId);
         ArrayList outlist = new ArrayList<>();
         for(ordermodel one : list)
         {
@@ -95,7 +99,15 @@ public class orderController {
         return commonJson;
     }
 
-
+    /**
+     * 生成订单号
+     * @return
+     */
+    private String getOrderNo(){
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyyMMddhhmmss");
+        String str = simpleDateFormat.format(new Date());
+        return str + String.valueOf(System.nanoTime());
+    }
 
     @PostMapping(value = "/InsertOrder")
     @ResponseBody
@@ -105,9 +117,18 @@ public class orderController {
         String openId = "oQz2Q0YfNmE--tNH-P7reZb7nXSE"; //Common.getOpenId();
         JSONObject jsonObject = JSON.parseObject(params);
         String productId = jsonObject.getString("productId");
+        boolean wxpayflag = true;
         int count = Integer.parseInt(jsonObject.getString("count"));
-        String cityCode = jsonObject.getString("cityCode");
-        String address = jsonObject.getString("address");
+        //String cityCode = jsonObject.getString("cityCode");
+        //String address = jsonObject.getString("address");
+        String addressId = jsonObject.getString("addressId");
+        CommonJson commonJson = new CommonJson();
+        if (addressId.equals("")) {
+            commonJson.setResultCode("0");
+            commonJson.setResultMsg("地址不能为空！");
+        }
+
+        addressmodel thisaddress = addressRespository.getByAddressId(addressId);
 
         productmodel oneproduct = productRespository.getByProductId(productId);
         customermodel onecustomer = customerRespository.getByOpenId(openId);
@@ -132,28 +153,55 @@ public class orderController {
             givenum = givenum * 3;
             finaloneprice = oneproduct.productNormalPrice;
         }
-        CommonJson commonJson = new CommonJson();
+
         ordermodel order = new ordermodel();
-        if (address == "") {
-            commonJson.setResultCode("0");
-            commonJson.setResultMsg("地址不能为空！");
-
-        } else if (cityCode == "") {
-            commonJson.setResultCode("0");
-            commonJson.setResultMsg("省市区请选择！");
-
-        } else if (count <= 0) {
+//        if (address == "") {
+//            commonJson.setResultCode("0");
+//            commonJson.setResultMsg("地址不能为空！");
+//
+//        } else if (cityCode == "") {
+//            commonJson.setResultCode("0");
+//            commonJson.setResultMsg("省市区请选择！");
+//
+//        }
+        if (count <= 0) {
             commonJson.setResultCode("0");
             commonJson.setResultMsg("商品数量不能小于或等于0");
 
         } else {
 
-            order.address = address;
-            order.cityCode = cityCode;
+            List<partnerwinemodel> mypartnerwinemodel = partnerWineRespository.getByOpenId(openId);
+            int mywinecount = 0;
+            partnerwinemodel tempmywine = null;
+            for(partnerwinemodel p : mypartnerwinemodel)
+            {
+                if (productId.equals(p.productId))
+                {
+                    wxpayflag = count> p.wineCount;
+                    //mywinecount = p.wineCount;
+                    tempmywine = p;
+                    break;
+                }
+
+            }
+
+            order.address = thisaddress.detailAddress;
+            order.provinceCode = thisaddress.provinceCode;
+            order.provinceValue = thisaddress.provinceValue;
+            order.cityCode = thisaddress.cityCode;
+            order.cityValue = thisaddress.cityValue;
+            order.areaCode = thisaddress.areaCode;
+            order.areaValue = thisaddress.areaValue;
+            order.postcode = thisaddress.postcode;
+
             order.createTime = new Date();
             order.openId = openId;
-            order.orderId = UUID.randomUUID().toString();
+            order.orderId = getOrderNo();
             order.orderState = "未支付";
+            if(!wxpayflag) {
+                order.orderState = "已支付";
+            }
+
             order.preOpenId = onecustomer.preOpenId;
             order.updateTime = new Date();
 
@@ -167,6 +215,7 @@ public class orderController {
             odm.productName = oneproduct.productName;
             odm.ProductNum = count + givenum;
             odm.productRealUnitPrice = finaloneprice;
+            odm.productSmallHeadImgUrl = oneproduct.productHeadImgUrl;
             odm.productSpec = oneproduct.productSpec;
             odm.productRealTotalPrice = finaloneprice * count;
             odm.productUnitPrice = oneproduct.productNormalPrice;
@@ -174,7 +223,26 @@ public class orderController {
             odm.updateTime = new Date();
             orderDetailRespository.save(odm);
 
+            if(!wxpayflag)
+            {
+                partnerwinelogmodel winelog = new partnerwinelogmodel();
+                winelog.beforeWineCount =tempmywine.wineCount;
+                winelog.wineCount =count;
+                winelog.afterWineCount = tempmywine.wineCount - count;
+                winelog.createTime = new Date();
+                winelog.openId = openId;
+                winelog.orderId = order.orderId;
+                winelog.identityId = UUID.randomUUID().toString();
+                tempmywine.wineCount = tempmywine.wineCount - count;
+                tempmywine.updateTime = new Date();
+                partnerWineRespository.save(tempmywine);
+                partnerWineLogRespository.save(winelog);
+            }
+
+
         }
+
+
 
         HashMap hm = new HashMap();
         hm.put("orderId", order.orderId);
@@ -203,7 +271,7 @@ public class orderController {
         ordermodel one = orderRespository.getByOrderId(orderId);
         one.updateTime = new Date();
         one.payTime = new Date();
-        if (one.orderState == "未支付")
+        if (one.orderState.equals("未支付"))
             one.orderState = "已支付";
 
         if (one.preOpenId != null && one.bonusFlag == 0 ) {

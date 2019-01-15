@@ -68,6 +68,11 @@ export const constantRouterMap = [
     path: '/addAddress',
     name: 'addAddress',
     component: () => import('@/views/addAddress/addAddress.vue')
+  },
+  {
+    path: '/deliveryDddress',
+    name: 'deliveryDddress',
+    component: () => import('@/views/deliveryDddress/deliveryDddress.vue')
   }
 ]
 

@@ -19,4 +19,6 @@ public interface OrderRespository extends PagingAndSortingRepository<ordermodel,
 
  List<ordermodel> getByOpenId(String openId);
 
+ List<ordermodel> getByOpenIdOrderByCreateTimeDesc(String openId);
+
 }

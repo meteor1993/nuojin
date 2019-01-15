@@ -13,19 +13,19 @@
       <div class="user clearfix">
         <div class="userLeft fl">
           <img
-            src="@/assets/images/头像@2x.png"
+            :src="customerInfo.wechatImageUrl"
             alt=""
           >
         </div>
         <div class="userRight fl">
           <div class="userName clearfix">
             <p class="">
-              我是大侠
-              <img
+             {{customerInfo.nickName}}
+              <!-- <img
                 class=""
                 src="@/assets/images/会员@2x.png"
                 alt=""
-              >
+              > -->
             </p>
           </div>
           <div class="agent">
@@ -34,7 +34,7 @@
                 src="@/assets/images/角色@2x.png"
                 alt=""
               >
-              代理商
+              {{levelname}}
             </p>
           </div>
         </div>
@@ -51,8 +51,8 @@
           >
           <span class="myPrice">我的余额: </span>
           <span class="price">
-            <i>100</i>
-            元
+            <!-- <i>100</i> -->
+            <!-- 元 -->
           </span>
           <div class="withdrawal">
             点击提现

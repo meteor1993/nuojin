@@ -21,6 +21,7 @@ public class orderdetailmodel {
     public String productId;
     public int productUnitPrice;
     public int productRealUnitPrice;
+    public String productSmallHeadImgUrl;
     public String productName;
     public String productSpec;
     public int productTotalPrice;

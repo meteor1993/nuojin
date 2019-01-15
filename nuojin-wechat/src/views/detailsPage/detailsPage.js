@@ -55,6 +55,11 @@ export default {
         console.log(response)
       })
     },
+    goUserInfo() {
+      this.$router.push({
+        path: '/userInfo'
+      })
+    },
     goPayOrder(productId) {
       
       this.$router.push({

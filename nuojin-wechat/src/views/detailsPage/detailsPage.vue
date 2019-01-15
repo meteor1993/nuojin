@@ -68,7 +68,27 @@
     <div class="btn">
       <button @click="goPayOrder(model.productId)">购买</button>
     </div>
+    <div style="height:70px;"></div>
+    <div class="nav clearfix">
+      <div class="leftNav fl">
+        <img
+          src="@/assets/images/商城选中@2x.png"
+          alt=""
+        >
+        <p>商城</p>
+      </div>
+      <div class="rightNav fr" @click="goUserInfo()">
+        <img
+          src="@/assets/images/我的未选中@2x.png"
+          alt=""
+        >
+        <p>个人中心</p>
+      </div>
+    </div>
+
+
   </div>
+  
 </template>
 <script src="./detailsPage.js"></script>
 <style src="./detailsPage.less" lang="less" scoped="scoped"></style>

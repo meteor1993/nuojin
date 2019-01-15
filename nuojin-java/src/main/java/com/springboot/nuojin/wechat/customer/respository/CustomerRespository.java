@@ -14,8 +14,9 @@ import java.util.List;
 public interface CustomerRespository extends PagingAndSortingRepository<customermodel, Long>, JpaSpecificationExecutor<customermodel> {
 
 
-    @Query( value = "select a.open_id,a.nick_name,a.level,a.pre_open_id,a.mobile,a.sex,a.wechat_image_url,b.balance,b.account_id from customer_info a left join account_info b on a.open_id=b.open_id where a.open_id=:open_id",nativeQuery = true)
-    List<Object> selectallinfo(@Param("open_id") String open_id);
+//    @Query( value = "select a.open_id,a.nick_name,a.level,a.pre_open_id,a.mobile,a.sex,a.wechat_image_url,b.balance,b.account_id from customer_info a left join account_info b on a.open_id=b.open_id where a.open_id=:open_id",nativeQuery = true)
+//    List<customeroutmodel> selectallinfo(@Param("open_id") String open_id);
+
 
     customermodel getByOpenId(String open_id);
 

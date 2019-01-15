@@ -10,10 +10,10 @@
       <ul>
         <li class="item">
           <span class="fl">收货人 :</span>
-          <input
+          <input v-model="consignee"
             type="text"
             placeholder="请输入收货人"
-            :value="this.consignee"
+         
           >
         </li>
         <li class="item">
@@ -21,7 +21,8 @@
           <input
             type="text"
             placeholder="请输入手机号码"
-            :value="this.mobile"
+            v-model="mobile"
+         
 
           >
         </li>
@@ -44,7 +45,7 @@
             </div>
             <div class="div-wrap" >
               <div class="divwrap" v-show="mask">
-                <v-distpicker type="mobile" @selected='selected' v-show="addInp">
+                <v-distpicker type="mobile" :province="provinceValue" :city="cityValue " :area="areaValue "  @selected='selected' v-show="addInp">
                 </v-distpicker>
               </div>
             </div>
@@ -57,13 +58,22 @@
 
         <li class="item">
           <span class="fl">详细地址 :</span>
-          <textarea placeholder="请输入详细地址"></textarea>
+          <!-- <textarea placeholder="请输入详细地址" 
+          ></textarea> -->
+          <input
+            type="text"
+            placeholder="请输入详细地址"
+            v-model="address"
+         
+          >
         </li>
         <li class="item">
           <span class="fl">邮政编码 :</span>
           <input
             type="text"
             placeholder="请输入邮政编码"
+             v-model="postcode"
+       
           >
         </li>
       </ul>

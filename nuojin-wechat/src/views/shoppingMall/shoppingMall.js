@@ -25,11 +25,17 @@ export default {
   data() {
     return {
       showIndex: 0,
-      productList: []
+      productList: [],
+      note: {
+        backgroundImage: "url()",
+        backgroundRepeat: "no-repeat",
+        backgroundSize: "25px auto",
+        marginTop: "5px",
+      }
     };
   },
   created() {
-    this.getByProductFirstType('wine');
+    this.getByProductFirstType('wine')
   },
   methods: {
     getByProductFirstType(productFirstType) {
@@ -37,7 +43,7 @@ export default {
         if (response.resultCode === '1') {
           this.productList = response.resultData.info
         }
-        console.log(response)
+       
       })
     },
     changeShowIndex(idx) {
