@@ -44,7 +44,7 @@ public class productController {
     @ResponseBody
     public CommonJson getByProductFirstType() throws IOException {
         String params = HttpUtils.getBodyString(ContextHolderUtils.getRequest().getReader());
-        String openId = "oQz2Q0YfNmE--tNH-P7reZb7nXSE";//Common.getOpenId();
+        String openId = Common.getOpenId();;//Common.getOpenId();
         JSONObject jsonObject = JSON.parseObject(params);
         String productFirstType = jsonObject.getString("productFirstType");
         List<productmodel> list = productRespository.getByProductFirstType(productFirstType);
@@ -90,7 +90,7 @@ public class productController {
     @ResponseBody
     public CommonJson getByProductId() throws IOException {
         String params = HttpUtils.getBodyString(ContextHolderUtils.getRequest().getReader());
-        String openId = "oQz2Q0YfNmE--tNH-P7reZb7nXSE";//Common.getOpenId();
+        String openId = Common.getOpenId();;//Common.getOpenId();
 
         JSONObject jsonObject = JSON.parseObject(params);
         String productId = jsonObject.getString("productId");
@@ -113,7 +113,7 @@ public class productController {
         String params = HttpUtils.getBodyString(ContextHolderUtils.getRequest().getReader());
         JSONObject jsonObject = JSON.parseObject(params);
         String productId = jsonObject.getString("productId");
-        String openId = "oQz2Q0YfNmE--tNH-P7reZb7nXSE";//Common.getOpenId();
+        String openId = Common.getOpenId();;//Common.getOpenId();
         customermodel onecustomer = customerRespository.getByOpenId(openId);
         HashMap hm = new HashMap();
         CommonJson commonJson = new CommonJson();

@@ -14,7 +14,9 @@ import com.springboot.nuojin.system.utils.StaffCacheUtil;
 import com.springboot.nuojin.wechat.wxUser.model.WxUserModel;
 import com.springboot.nuojin.wechat.wxUser.repository.WxUserRepository;
 import me.chanjar.weixin.common.api.WxConsts;
+import me.chanjar.weixin.common.bean.WxJsapiSignature;
 import me.chanjar.weixin.common.error.WxErrorException;
+import me.chanjar.weixin.mp.api.WxMpConfigStorage;
 import me.chanjar.weixin.mp.api.WxMpService;
 import me.chanjar.weixin.mp.bean.result.WxMpOAuth2AccessToken;
 import me.chanjar.weixin.mp.bean.result.WxMpUser;
@@ -53,42 +55,14 @@ public class WxUserController {
     @Autowired
     WxUserRepository wxUserRepository;
 
+    @Autowired
+    private WxMpConfigStorage wxMpConfigStorage;
+
     @GetMapping(value = "/oauth2Wechat")
     public ModelAndView oauth2Wechat() {
-        String url = wxMpService.oauth2buildAuthorizationUrl("http://alpaca.s1.natapp.cc/mp/wxUserController/getCode", WxConsts.OAuth2Scope.SNSAPI_USERINFO, null);
+        String url = wxMpService.oauth2buildAuthorizationUrl("http://fuhui.kaixindaka.com/mp/wxUserController/getCode", WxConsts.OAuth2Scope.SNSAPI_USERINFO, null);
         logger.info(">>>>>>>>>>>>>>>>>>>url:" + url);
         return new ModelAndView(new RedirectView(url));
-    }
-
-    @PostMapping(value = "/getOauthUrl")
-    @ResponseBody
-    public CommonJson getOauthUrl() throws IOException {
-
-        String params = HttpUtils.getBodyString(ContextHolderUtils.getRequest().getReader());
-
-        logger.info("WechatUserController.getOauthUrl>>>>>>>>>>>>params:" + params);
-
-        JSONObject jsonObject = JSON.parseObject(params);
-        String key = jsonObject.getString("key");
-
-        CommonJson json = new CommonJson();
-
-        if ("NA2i760YXSgfsiOlQl8z4ps5Zll73FfM".equals(key)) {
-            String url = wxMpService.oauth2buildAuthorizationUrl("http://alpaca.s1.natapp.cc/mp/wechatUser/getCode", WxConsts.OAuth2Scope.SNSAPI_USERINFO, null);
-            logger.info("WechatUserController.getOauthUrl>>>>>>>>>>>>url:" + url);
-            Map<String, Object> map = Maps.newHashMap();
-            map.put("url", url);
-
-            json.setResultCode("1");
-            json.setResultData(map);
-            json.setResultMsg("success");
-            return json;
-        } else {
-            json.setResultCode("0");
-            json.setResultData(null);
-            json.setResultMsg("fail");
-            return json;
-        }
     }
 
     @GetMapping(value = "/getCode")
@@ -98,7 +72,10 @@ public class WxUserController {
         WxMpUser wxMpUser = wxMpService.oauth2getUserInfo(wxMpOAuth2AccessToken, "zh_CN");
         logger.info(">>>>>>>>>>>>>>>>>>>>>>>>>>wxMpUser:" + wxMpUser.toString());
         WxUserModel wxUserModel = wxUserRepository.getByOpenIdIs(wxMpUser.getOpenId());
-        wxUserModel = new WxUserModel();
+        if (wxUserModel == null) {
+            wxUserModel = new WxUserModel();
+        }
+
         wxUserModel.setOpenId(wxMpUser.getOpenId());
         // 更新微信信息
         wxUserModel.setNickName(wxMpUser.getNickname());
@@ -107,106 +84,20 @@ public class WxUserController {
 
         wxUserModel = wxUserRepository.save(wxUserModel);
 
+
+        //自动生成账户，用户信息
+
+
+
+
+
         // 生成token
         String token = UUID.randomUUID().toString();
         // 将WxUserModel存入缓存
         StaffCacheUtil.create().put(token, wxUserModel);
-        response.sendRedirect("http://localhost:8080/#/home?token=" + token);
+        response.sendRedirect("http://nuojin.mp.kaixindaka.com/#/shoppingMall?token=" + token);
 
         return null;
-    }
-
-
-    /**
-     * 获取token，完成腾讯交互获取微信用户信息，并相关数据存入缓存
-     * @return
-     * @throws IOException
-     * @throws ExecutionException
-     */
-    @PostMapping(value = "/getToken")
-    @ResponseBody
-    public CommonJson getToken() throws IOException, ExecutionException {
-        String params = HttpUtils.getBodyString(ContextHolderUtils.getRequest().getReader());
-
-        logger.info("WxUserController.getToken>>>>>>>>>>>>params:" + params);
-
-            JSONObject jsonObject = JSON.parseObject(params);
-            String key = jsonObject.getString("key");
-            CommonJson json = new CommonJson();
-            // 如果key相符合
-            if ("NA2i760YXSgfsiOlQl8z4ps5Zll73FfM".equals(key)) {
-                // 和腾讯交互，获取WxMpUser，并更新或者保存WxUserModel
-                WxMpUser wxMpUser = new WxMpUser();
-            wxMpUser.setOpenId("111111111");
-            wxMpUser.setHeadImgUrl("http://storage.360buyimg.com/i.imageUpload/4d6574656f723139393331353134323936363537373539_mid.jpg");
-
-            WxUserModel WxUserModel = wxUserRepository.getByOpenIdIs(wxMpUser.getOpenId());
-
-            WxUserModel = new WxUserModel();
-            WxUserModel.setOpenId(wxMpUser.getOpenId());
-            // 更新微信信息
-            WxUserModel.setNickName(wxMpUser.getNickname());
-            WxUserModel.setSex(wxMpUser.getSex());
-            WxUserModel.setWechatImageUrl(wxMpUser.getHeadImgUrl());
-
-            WxUserModel = wxUserRepository.save(WxUserModel);
-
-            // 生成token
-            String token = UUID.randomUUID().toString();
-            // 将WxUserModel存入缓存
-            StaffCacheUtil.create().put(token, WxUserModel);
-            // 将token返回
-            Map<String, Object> map = Maps.newHashMap();
-            map.put("token", token);
-            json.setResultCode("1");
-            json.setResultMsg("success");
-            json.setResultData(map);
-            return json;
-        }
-
-        return null;
-    }
-
-    /**
-     * 获取用户信息
-     * @return
-     */
-    @PostMapping(value = "/getUserInfo")
-    @ResponseBody
-    public CommonJson getUserInfo() {
-        String token = ContextHolderUtils.getRequest().getHeader("token");
-
-        logger.info("WxUserController.getUserInfo>>>>>>>>>>>>token:" + token);
-
-        WxUserModel WxUserModel = null;
-
-        try {
-            WxUserModel = (WxUserModel) StaffCacheUtil.create().get(token, new Callable<WxUserModel>() {
-                @Override
-                public WxUserModel call() throws Exception {
-                    return null;
-                }
-            });
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-        }
-
-        CommonJson json = new CommonJson();
-
-        Map<String, Object> map = Maps.newHashMap();
-
-        if (WxUserModel != null) {
-            WxUserModel = wxUserRepository.getByOpenIdIs(WxUserModel.getOpenId());
-            map.put("info", WxUserModel);
-            json.setResultCode("1");
-            json.setResultMsg("success");
-            json.setResultData(map);
-        } else {
-            json.setResultCode("0");
-            json.setResultMsg("fail");
-        }
-
-        return json;
     }
 
     /**
@@ -222,6 +113,36 @@ public class WxUserController {
             return getRandomCode();
         }
         return result;
+    }
+
+    @RequestMapping(value = "/ajaxJsapiSignature")
+    @ResponseBody
+    public CommonJson ajaxJsapiSignature() throws IOException {
+        logger.info("WechatUserController.ajaxJsapiSignature>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+
+        String params = HttpUtils.getBodyString(ContextHolderUtils.getRequest().getReader());
+
+        logger.info("WechatUserController.ajaxJsapiSignature>>>>>>>>>>>>params:" + params);
+        JSONObject jsonObject = JSON.parseObject(params);
+        String locaHref = jsonObject.getString("locaHref");
+        CommonJson j = new CommonJson();
+        WxJsapiSignature jsapiSignature = null;
+        String appId = "";
+        try {
+            appId = wxMpConfigStorage.getAppId();
+            jsapiSignature = wxMpService.createJsapiSignature(locaHref);
+            logger.info("----------ajaxJsapiSignature:"+ locaHref+",JsapiTicket:" + wxMpConfigStorage.getJsapiTicket());
+        } catch (WxErrorException e) {
+            e.printStackTrace();
+        }
+        j.setResultCode("1");
+        Map<String,Object> map = Maps.newHashMap();
+        map.put("appId", appId);
+        map.put("jsapiSignature", jsapiSignature);
+
+        j.setResultData(map);
+        logger.info("----------ajaxJsapiSignature:"+ JSON.toJSONString(j));
+        return j;
     }
 
     /**

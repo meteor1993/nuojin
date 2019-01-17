@@ -4,7 +4,12 @@ package com.springboot.nuojin.wechat.order.controller;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.github.binarywang.wxpay.bean.notify.WxPayOrderNotifyResult;
+import com.github.binarywang.wxpay.bean.request.WxPayUnifiedOrderRequest;
+import com.github.binarywang.wxpay.bean.result.WxPayUnifiedOrderResult;
+import com.github.binarywang.wxpay.exception.WxPayException;
 import com.github.binarywang.wxpay.service.WxPayService;
+import com.github.binarywang.wxpay.util.SignUtils;
 import com.google.common.collect.Maps;
 import com.springboot.nuojin.system.model.CommonJson;
 import com.springboot.nuojin.system.utils.ContextHolderUtils;
@@ -24,12 +29,16 @@ import com.springboot.nuojin.wechat.product.model.partnerpricemodel;
 import com.springboot.nuojin.wechat.product.model.productmodel;
 import com.springboot.nuojin.wechat.product.respository.PartnerPriceRespository;
 import com.springboot.nuojin.wechat.product.respository.ProductRespository;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.transaction.Transactional;
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -40,6 +49,7 @@ import java.util.*;
 @RestController
 @RequestMapping(path = "/mp/orderController")
 public class orderController {
+    private final Logger logger = LoggerFactory.getLogger(orderController.class);
 
     @Autowired
     WxPayService wxPayService;
@@ -65,6 +75,9 @@ public class orderController {
     PartnerWineRespository partnerWineRespository;
     @Autowired
     PartnerWineLogRespository partnerWineLogRespository;
+
+    private static final String payCallUrl = "mp/orderController/paySuccess";
+
     public orderController() {
 
     }
@@ -75,10 +88,9 @@ public class orderController {
     @PostMapping(value = "/getOrderListByOpenId")
     @ResponseBody
     @Transactional
-    public CommonJson getOrderListByOpenId()
-    {
+    public CommonJson getOrderListByOpenId() throws IOException {
         //获取所有除了未支付以外状态的所有订单
-        String openId = "oQz2Q0YfNmE--tNH-P7reZb7nXSE"; //Common.getOpenId();
+        String openId = Common.getOpenId();
         List<ordermodel> list = orderRespository.getByOpenIdOrderByCreateTimeDesc(openId);
         //List<ordermodel> list = orderRespository.getByOpenIdOrderByCreateTimeDesc(openId);
         ArrayList outlist = new ArrayList<>();
@@ -112,9 +124,9 @@ public class orderController {
     @PostMapping(value = "/InsertOrder")
     @ResponseBody
     @Transactional
-    public CommonJson InsertOrder() throws IOException {
+    public CommonJson InsertOrder() throws IOException, WxPayException {
         String params = HttpUtils.getBodyString(ContextHolderUtils.getRequest().getReader());
-        String openId = "oQz2Q0YfNmE--tNH-P7reZb7nXSE"; //Common.getOpenId();
+        String openId = Common.getOpenId();
         JSONObject jsonObject = JSON.parseObject(params);
         String productId = jsonObject.getString("productId");
         boolean wxpayflag = true;
@@ -205,6 +217,59 @@ public class orderController {
             order.preOpenId = onecustomer.preOpenId;
             order.updateTime = new Date();
 
+            // 微信统一下单流程
+            HttpServletRequest request = ContextHolderUtils.getRequest();
+            String basePath = request.getScheme()+"://"+request.getServerName()+request.getContextPath()+"/";
+
+            WxPayUnifiedOrderRequest wxPayUnifiedOrderRequest = WxPayUnifiedOrderRequest.newBuilder().build();
+            // 随机数
+            wxPayUnifiedOrderRequest.setNonceStr(UUID.randomUUID().toString().replaceAll("-", ""));
+            // openid
+            wxPayUnifiedOrderRequest.setOpenid(Common.getOpenId());
+            // 商品描述
+            wxPayUnifiedOrderRequest.setBody(oneproduct.getProductDescString());
+            // 商户订单号
+            wxPayUnifiedOrderRequest.setOutTradeNo(order.getOrderId());
+            // 标价金额
+            wxPayUnifiedOrderRequest.setTotalFee(finaloneprice*count);
+            // 终端IP
+            wxPayUnifiedOrderRequest.setSpbillCreateIp(getIp(request));
+//        wxPayUnifiedOrderRequest.setSpbillCreateIp("172.16.13.50");
+            // 通知地址
+            wxPayUnifiedOrderRequest.setNotifyUrl(basePath + payCallUrl);
+            //.setNotifyURL(basePath + payCallUrl);
+            // 交易类型
+            wxPayUnifiedOrderRequest.setTradeType("JSAPI");
+
+
+            WxPayUnifiedOrderResult result = wxPayService.unifiedOrder(wxPayUnifiedOrderRequest);
+
+            logger.info(">>>>>>>>>>>>>>>>>>>>>>>>>>>>result:" + JSON.toJSONString(result));
+
+            order.setTxOrderNo(result.getPrepayId());
+            order.setPayTime(new Date());
+
+
+            String signType = "MD5";
+            String timeStamp = String.valueOf(System.currentTimeMillis() / 1000);
+            String nonceStr = UUID.randomUUID().toString().replaceAll("-", "");
+            Map<String, String> configMap = Maps.newHashMap();
+            configMap.put("appId", this.wxPayService.getConfig().getAppId());
+            configMap.put("timeStamp", timeStamp);
+            configMap.put("nonceStr", nonceStr);
+            configMap.put("package", "prepay_id=" + result.getPrepayId());
+            configMap.put("signType", signType);
+            String paySign = SignUtils.createSign(configMap, signType, this.wxPayService.getConfig().getMchKey(), new String[]{"sign", "key", "xmlString", "xmlDoc", "couponList"});
+//        String paySign = SignUtils.createSign(configMap, signType, this.wxMaService.getWxMaConfig().getSecret(), false);
+            this.logger.info(">>>>>>>>>>map:" + JSON.toJSONString(configMap) + ">>>>>>>paySign:" + paySign);
+            Map<String, Object> map = Maps.newHashMap();
+            map.put("appId", this.wxPayService.getConfig().getAppId());
+            map.put("timeStamp", timeStamp);
+            map.put("nonceStr", nonceStr);
+            map.put("package", result.getPrepayId());
+            map.put("signType", signType);
+            map.put("paySign", paySign);
+
             orderRespository.save(order);
 
             orderdetailmodel odm = new orderdetailmodel();
@@ -239,62 +304,102 @@ public class orderController {
                 partnerWineLogRespository.save(winelog);
             }
 
+            HashMap hm = new HashMap();
+            hm.put("orderId", order.orderId);
+            hm.put("appId", this.wxPayService.getConfig().getAppId());
+            hm.put("timeStamp", timeStamp);
+            hm.put("nonceStr", nonceStr);
+            hm.put("package", result.getPrepayId());
+            hm.put("signType", signType);
+            hm.put("paySign", paySign);
+            commonJson.setResultCode("1");
+            commonJson.setResultMsg("下单成功！");
+            commonJson.setResultData(hm);
 
         }
 
 
 
-        HashMap hm = new HashMap();
-        hm.put("orderId", order.orderId);
-        commonJson.setResultCode("1");
-        commonJson.setResultMsg("下单成功！");
-        commonJson.setResultData(hm);
+
         return commonJson;
     }
 
-    @PostMapping(value = "/PaySuccess")
+    /**
+     * 获取真实ip
+     * @param request
+     * @return
+     */
+    private static String getIp(HttpServletRequest request) {
+        String ip = request.getHeader("X-Forwarded-For");
+        if (StringUtils.isNotEmpty(ip) && !"unKnown".equalsIgnoreCase(ip)) {
+            // 多次反向代理后会有多个ip值，第一个ip才是真实ip
+            int index = ip.indexOf(",");
+            if (index != -1) {
+                return ip.substring(0, index);
+            } else {
+                return ip;
+            }
+        }
+        ip = request.getHeader("X-Real-IP");
+        if (StringUtils.isNotEmpty(ip) && !"unKnown".equalsIgnoreCase(ip)) {
+            return ip;
+        }
+        return request.getRemoteAddr();
+    }
+
+    @PostMapping(value = "/paySuccess")
     @ResponseBody
     @Transactional
     /***
      * 微信支付回调函数，订单号需要改成微信支付订单号
      */
-    public void PaySuccess() throws IOException {
+    public void PaySuccess(HttpServletRequest request) throws IOException {
 
-        //之后orderId以微信的的订单号查询出具体的orderId
-        String params = HttpUtils.getBodyString(ContextHolderUtils.getRequest().getReader());
-        String openId = "oQz2Q0YfNmE--tNH-P7reZb7nXSE"; //Common.getOpenId();
-        //获取微信支付订单号
-        JSONObject jsonObject = JSON.parseObject(params);
-        String transactionId = jsonObject.getString("transactionId");
-        List<WxPayOrderModel> paymodel = wxPayOrderRespository.getByTransactionId(transactionId);
-        String orderId= paymodel.get(0).getOrderNo();
-        ordermodel one = orderRespository.getByOrderId(orderId);
-        one.updateTime = new Date();
-        one.payTime = new Date();
-        if (one.orderState.equals("未支付"))
-            one.orderState = "已支付";
+        try {
+            // 更新微信订单
+            String restxml = HttpUtils.getBodyString(request.getReader());
+            this.logger.info(">>>>>>>>>>>>>>OnlineCourseController.notify>>>>>>>>>restxml:" + restxml);
+            WxPayOrderNotifyResult wxPayOrderNotifyResult = wxPayService.parseOrderNotifyResult(restxml);
+            ordermodel wechatOrderModel = orderRespository.getByOrderId(wxPayOrderNotifyResult.getOutTradeNo());
+            this.logger.info(">>>>>>>>>>>>>>OnlineCourseController.notify>>>>>>>>>wechatOrderModel:" + JSON.toJSONString(wechatOrderModel));
+            // 如果支付成功
+            if ("SUCCESS".equals(wxPayOrderNotifyResult.getReturnCode()) && "SUCCESS".equals(wxPayOrderNotifyResult.getResultCode())) {
 
-        if (one.preOpenId != null && one.bonusFlag == 0 ) {
-            List<orderdetailmodel> orderdetaillist = orderDetailRespository.getByOrderId(orderId);
-            //有上线
-            List<partnerpricemodel> partner = partnerPriceRespository.getByProductId(orderdetaillist.get(0).productId, 2);
-            productmodel product = productRespository.getByProductId(orderdetaillist.get(0).productId);
-            int profitmoney = product.productOfflinePrice - partner.get(0).price;
-            int companyprofit = new BigDecimal(profitmoney).multiply(new BigDecimal(0.3)).intValue();
-            int customerprofit = profitmoney - companyprofit;
 
-            bonusmodel customerbonus = new bonusmodel();
-            customerbonus.orderId = orderId;
-            customerbonus.state = 0;
-            customerbonus.bonus = customerprofit;
-            customerbonus.bonusId = UUID.randomUUID().toString();
-            customerbonus.openId = openId;
-            customerbonus.createTime = new Date();
-            customerbonus.companybonus = companyprofit;
-            one.bonusFlag = 1;
-            bonusRepository.save(customerbonus);
+                String openId = wechatOrderModel.getOpenId();
+                String transactionId =wxPayOrderNotifyResult.getTransactionId();
+                wechatOrderModel.updateTime = new Date();
+                wechatOrderModel.paySuccessTime =  wxPayOrderNotifyResult.getTimeEnd();
+                if (wechatOrderModel.orderState.equals("未支付"))
+                    wechatOrderModel.orderState = "已支付";
+                if (wechatOrderModel.preOpenId != null && wechatOrderModel.bonusFlag == 0 ) {
+                    List<orderdetailmodel> orderdetaillist = orderDetailRespository.getByOrderId(wechatOrderModel.orderId);
+                    //有上线
+                    List<partnerpricemodel> partner = partnerPriceRespository.getByProductId(orderdetaillist.get(0).productId, 2);
+                    productmodel product = productRespository.getByProductId(orderdetaillist.get(0).productId);
+                    int profitmoney = product.productOfflinePrice - partner.get(0).price;
+                    int companyprofit = new BigDecimal(profitmoney).multiply(new BigDecimal(0.3)).intValue();
+                    int customerprofit = profitmoney - companyprofit;
+
+                    bonusmodel customerbonus = new bonusmodel();
+                    customerbonus.orderId = wechatOrderModel.orderId;
+                    customerbonus.state = 0;
+                    customerbonus.bonus = customerprofit;
+                    customerbonus.bonusId = UUID.randomUUID().toString();
+                    customerbonus.openId = openId;
+                    customerbonus.createTime = new Date();
+                    customerbonus.companybonus = companyprofit;
+                    wechatOrderModel.bonusFlag = 1;
+                    bonusRepository.save(customerbonus);
+                }
+                orderRespository.save(wechatOrderModel);
+
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (WxPayException e) {
+            e.printStackTrace();
         }
-        orderRespository.save(one);
     }
 
     /***
@@ -307,7 +412,7 @@ public class orderController {
     @Transactional
     public CommonJson CheckReFund() throws IOException {
         String params = HttpUtils.getBodyString(ContextHolderUtils.getRequest().getReader());
-        String openId = "oQz2Q0YfNmE--tNH-P7reZb7nXSE"; //Common.getOpenId();
+        String openId = Common.getOpenId();
         JSONObject jsonObject = JSON.parseObject(params);
         String orderId = jsonObject.getString("orderId");
         ordermodel thisorder = orderRespository.getByOrderId(orderId);

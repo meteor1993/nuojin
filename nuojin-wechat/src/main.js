@@ -4,6 +4,8 @@ import router from './router'
 import "@/assets/index.css";
 import "@/assets/font/font/iconfont.css"
 
+import '@/permission'
+
 Vue.config.productionTip = false
 import VueToast    from 'vue-toast-m'
 Vue.use(VueToast)

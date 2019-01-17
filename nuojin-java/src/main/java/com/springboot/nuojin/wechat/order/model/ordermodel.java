@@ -37,6 +37,8 @@ public class ordermodel {
     public Date updateTime;
     @Column(name="bonusFlag",nullable=false,columnDefinition = "int default 0")
     public int bonusFlag;
+    public String txOrderNo;
+    public String paySuccessTime;
 
 
 }

@@ -1,5 +1,5 @@
 
-
+import { getJSSDK } from '@/utils/sdk'
 import { getByProductId, getPartnerPrice} from "@/api/productApi"
 import {getAddressList } from "@/api/customerApi"
 import {InsertOrder} from "@/api/orderApi"
@@ -25,6 +25,7 @@ export default {
     this.getFetchData()
     this.getPartnerPriceList()
     this.getAddressData()
+    getJSSDK()
     
   },
   methods: {
@@ -68,12 +69,16 @@ export default {
 
       InsertOrder(params).then(response => {
         if (response.resultCode === '1') {
-          const that = this
-          this.$toast.show("下单成功",function(){
-            that.$router.push({
-              path: '/myOrder'
-            })
-          })
+          let opthions = {
+            appId: response.resultData.appId,
+            timeStamp: response.resultData.timeStamp,
+            nonceStr: response.resultData.nonceStr,
+            package: response.resultData.package,
+            signType: response.resultData.signType,
+            paySign: response.resultData.paySign
+          }
+          console.log(opthions)
+          this.onBridgeReady(opthions)
         }
 
       })
@@ -176,6 +181,31 @@ export default {
       }
       this.checkMoney()
       this.totalmoney = this.numberInput*(this.productmodel.productNowPrice/100)
+    },
+
+    onBridgeReady (params) {
+      window.WeixinJSBridge.invoke(
+        'getBrandWCPayRequest', {
+          'appId': params.appId, // 公众号名称，由商户传入
+          'timeStamp': params.timeStamp, // 时间戳，自1970年以来的秒数
+          'nonceStr': params.nonceStr, // 随机串
+          'package': 'prepay_id='+params.package,
+          'signType': params.signType, // 微信签名方式：
+          'paySign': params.paySign // 微信签名
+        },
+        (res) => {
+          if (res.err_msg === 'get_brand_wcpay_request:ok') {
+            const that = this
+            this.$toast.show("下单成功",function(){
+              that.$router.push({
+                path: '/myOrder'
+              })
+            })
+          } else {
+            this.$toast.show('支付失败，请重试')
+          }
+        }
+      )
     }
   }
 };

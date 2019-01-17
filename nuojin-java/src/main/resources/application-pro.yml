@@ -1,6 +1,6 @@
 #server setting
 server:
-  port: 8080
+  port: 80
   tomcat:
     uri-encoding: utf-8
     #最大连接数
@@ -93,7 +93,12 @@ logging:
 #公众号配置
 wechat:
   mp:
-    appId: wxea7b5c253702db34
-    secret: 5bbd5b14df3a196784076a806bd9fbc1
-    token: TdbjScsWLoRDLRFYLA27in6o9YSOa6vI
+    appId: wx538c47cb7ffaa26e
+    secret: 08858670680de1c5804f320142260775
+    token:
     aesKey:
+  pay:
+    appId: wx538c47cb7ffaa26e
+    mchId: 1517852661
+    mchKey: 00630f18069111e9bb1500163e0a9c22
+    keyPath: classpath:apiclient_cert.p12

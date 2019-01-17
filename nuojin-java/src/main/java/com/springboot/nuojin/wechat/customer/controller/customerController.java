@@ -72,7 +72,7 @@ public class customerController {
     public CommonJson getCustomer() throws IOException {
         CommonJson json = new CommonJson();
         Map<String, Object> map = Maps.newHashMap();
-        String openId = "oQz2Q0YfNmE--tNH-P7reZb7nXSE";
+        String openId = Common.getOpenId();
         customermodel outlist = CustomerRespository.getByOpenId(openId);
 
         map.put("info",outlist);
@@ -141,7 +141,7 @@ public class customerController {
         insertmodel.setCityValue(cityValue);
         insertmodel.setMobile(mobile);
         insertmodel.setName(consignee);
-        String openId= "oQz2Q0YfNmE--tNH-P7reZb7nXSE";
+        String openId= Common.getOpenId();;
         insertmodel.setOpenId(openId);
         insertmodel.setUpdateDate(new Date());
         addressRespository.save((insertmodel));
@@ -157,7 +157,7 @@ public class customerController {
     @ResponseBody
     public CommonJson getAddressList() throws IOException {
 
-        String openId = "oQz2Q0YfNmE--tNH-P7reZb7nXSE";
+        String openId = Common.getOpenId();;
         List<addressmodel> list = addressRespository.getByOpenId(openId);
 
         for(addressmodel one:list)
