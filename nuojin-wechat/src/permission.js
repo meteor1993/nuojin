@@ -4,6 +4,8 @@ import { getToken, setToken } from '@/utils/auth' // 验权
 // import { Dialog } from 'vant'
 
 router.beforeEach((to, from, next) => {
+  console.log(to)
+  console.log(next)
   if (getToken()) { // 如果token存在，直接next
     next()
   } else {
