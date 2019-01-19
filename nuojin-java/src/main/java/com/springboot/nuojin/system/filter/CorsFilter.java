@@ -72,14 +72,14 @@ public class CorsFilter implements Filter {
 
                 if (allowOriginList.contains(currentOrigin)) {
 
-                    response.setHeader("Access-Control-Allow-Origin", "http://localhost:9000");//currentOrigin);
+                    response.setHeader("Access-Control-Allow-Origin", "http://nuojin.mp.kaixindaka.com");//currentOrigin);
 
                 }
 
             }
         } else {
             String originHeader = request.getHeader("Origin");
-            response.setHeader("Access-Control-Allow-Origin","http://localhost:9000");// originHeader);
+            response.setHeader("Access-Control-Allow-Origin","http://nuojin.mp.kaixindaka.com");// originHeader);
         }
 
         response.setHeader("Access-Control-Allow-Headers", "Content-Type,token");
